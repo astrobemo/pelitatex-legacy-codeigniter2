@@ -1,0 +1,336 @@
+<?
+		
+
+		$nama_toko = '';
+		foreach ($toko_data as $row) {
+			$nama_toko = $row->nama;
+		}
+
+		$pdf = new FPDF( 'L', 'mm', array(210 ,297 ) );
+		$idx = 0;
+		$pageIndex = 0;
+		$pageCount = count($brs);
+
+		$pdf->SetAutoPageBreak(0);
+		
+		$general_font_size = 7;
+		$tinggi = 4.3;
+		foreach ($brs as $periode => $value) {
+
+
+			$pdf->cMargin = 0;
+
+			$pdf->AddPage();
+			$pdf->SetMargins(3,0,3);
+			$pdf->SetTextColor( 0,0,0 );
+
+			$pdf->AddFont('calibriL','','calibriL.php');
+			$pdf->AddFont('calibri','','calibri.php');
+			$pdf->AddFont('calibriLI','','calibriLI.php');
+
+			$font_name = 'calibriL';
+			$font_name_bold = 'calibri';
+			$font_name_italic = 'calibriLI';
+			
+			$pdf->SetFont( $font_name_bold, '', $general_font_size );
+			$pageIndex++;
+			$pdf->Text(282,203,'hal. '.$pageIndex.'/'.$pageCount);
+			$pdf->SetFont( $font_name_bold, '', 12 );
+			$pdf->setY(7);
+			$no_baris = 0;
+			
+			// $value is data
+			foreach ($value as $index => $data) {
+                $barang_id = $data['barang_id'];
+				
+				if ($no_baris + $data['jumlah_baris'] > 40 || $no_baris == 0) {
+					// echo strtoupper($data['nama']).' =1 '.($no_baris + $data['jumlah_baris']).'<br/>';
+					$no_baris = 1;
+					$idx++;
+					//==================awal perbedaan dengan mode 1=======================
+					if ($idx % 2 == 1) {
+						$setXStart = 3;
+						$setXEnd = 98;
+		
+						if ($idx == 1) {
+							$pdf->Cell(200,5,$nama_toko, 0, 1, 'L');
+							$pdf->Cell(200,5,'REQUEST DELIVERY ORDER', 0, 1, 'L');
+							$pdf->Cell(200,5,$no_request_lengkap, 0, 1, 'L');
+			
+							// $pdf->Line(3, 10.8, 250, 10);
+							// $pdf->Line(3, 15.8, 250, 15);
+							// $pdf->Line(3, 20.8, 250, 20);
+			
+			
+							$pdf->Text(220,15.3,'Kepada');
+							$pdf->Text(220,20.3,'Attn');
+							
+							$pdf->Text(245,10.4, date('d F Y', strtotime( is_date_formatter($tanggal) ) ) );
+							$pdf->Text(245,15.3,': '. strtoupper($nama_supplier));
+							$pdf->Text(245,20.3,': '. strtoupper($attn));
+		
+						}	
+						
+						$pdf->SetFont( $font_name, '', $general_font_size );
+						$pdf->setY(15);
+		
+					}else{
+						$setXStart = 150;
+						$setXEnd = 200;
+					}
+					// echo $key.'<br/>';
+					// print_r($value);
+					// echo $key.'<hr/>';
+					
+					$garis = 'LB';
+					$garis_kanan = 'LBR';
+					if ($idx <= 2) {
+						$yAx = 25;
+					}else{
+						$yAx = 10;
+					}
+					$pdf->setY($yAx);
+					$pdf->setX($setXStart);
+					$pdf->SetFont( $font_name_bold, '', 9 );
+					$clr = explode(',',$month_color[(int)date('m', strtotime($periode))-1]);
+					$pdf->setFillColor($clr[0],$clr[1],$clr[2]);
+					$pdf->Cell(140, 6, strtoupper(date('F Y', strtotime($periode.' +1year'))) ,1,1,'C',1);
+					$pdf->SetFont( $font_name, '', $general_font_size );
+			
+					$pdf->setX($setXStart);
+					$pdf->Cell(15,$tinggi*2, 'Barang ', $garis,0,'C');
+					$pdf->setX($setXStart+15);
+					$pdf->Cell(15,$tinggi*2, 'TOTAL', $garis,0,'C');
+					$pdf->setX($setXStart+30);
+					$pdf->Cell(45,$tinggi*2, 'Warna', $garis,0,'C');
+					$pdf->setX($setXStart+15+45+15);
+					$pdf->Cell(15,$tinggi*2, 'QTY', $garis,0,'C');
+					
+					$pdf->setX($setXStart+15+45+15+15);
+					$pdf->Cell(37.5,$tinggi, 'KETERANGAN', $garis,0,'C');
+					$pdf->setX($setXStart+15+42.5+15+15+40);
+					$pdf->Cell(12.5,$tinggi*2, 'TERKIRIM', $garis_kanan ,1,'C');
+					// $pdf->Cell(15,$tinggi*2, 'ORDER', 'LTR',0,'C');
+		
+					$pdf->setY($yAx+$tinggi*2+(6-$tinggi) );
+					$pdf->setX($setXStart+15+45+15+15);
+					$pdf->Cell(25,$tinggi, 'PO', $garis,0,'C');
+					$pdf->Cell(12.5,$tinggi, 'QTY', $garis,1,'C');
+	
+					//==================batas perbedaan dengan mode 1=======================
+				}else{
+					// echo strtoupper($data['nama']).' =0 '.($no_baris + $data['jumlah_baris']).'<br/>';
+					// $no_baris = 0;
+				}
+				$no_baris+=$data['jumlah_baris'];
+
+				
+				$yAxisAfter = $pdf->getY();
+				$pdf->setX($setXStart);
+				// print_r($data); echo '<hr/>';
+				//=====index nya barang id
+				$yAxisBefore = $yAxisAfter;
+				
+                $t_baris = $data['jumlah_baris'];
+                $tamb_baris_ket = 0;
+                if (isset($keterangan_qty[$periode][$barang_id])) {
+                    $tamb_baris_ket = count($keterangan_qty[$periode][$barang_id]);
+                }
+                $t_baris += $tamb_baris_ket;
+
+				if (strlen($data['nama']) > 7 && $t_baris > 2 ) {
+					$yNow = $pdf->getY();
+					
+					$pdf->setXY($setXStart + 1, $yNow+(($tinggi*$t_baris)/2) - 3 );
+					$pdf->Multicell(13,$tinggi, strtoupper($data['nama']),0,'C');
+					
+					$pdf->setXY($setXStart,$yNow);
+					$pdf->Multicell(15,($tinggi*($t_baris)), '',$garis,'C');
+					$yAfter = $pdf->getY();
+					$pdf->setY($yAxisBefore + ($tinggi*($t_baris/2)));
+				}else if (strlen($data['nama']) > 7 && $t_baris == 2 ){
+					$pdf->Multicell(15,$tinggi, strtoupper($data['nama']),$garis,'C');
+				}else if(strlen($data['nama']) > 7 && $t_baris == 1 ){
+					$pdf->SetFont( $font_name, '', $general_font_size-1 );
+					$pdf->Cell(15,$tinggi, strtoupper($data['nama']),$garis,'C');	
+					$pdf->SetFont( $font_name, '', $general_font_size );
+				}else{
+					$pdf->Multicell(15,($tinggi*($t_baris)), strtoupper($data['nama']),$garis,'C');
+				}
+				// $pdf->Text($setXStart+2,($yAxisBefore + ($tinggi*($data['jumlah_baris']/2))),'1995 WR/WP/CIRE GRADE B');
+				// $pdf->Multicell(15,4, '1995 WR/WP/CIRE GRADE B',$garis,'C');
+				$yAxisAfter = $pdf->getY();
+				//===============genereate warna==================
+				$pdf->setY($yAxisBefore);
+				$yAxisBeforeInt = $yAxisBefore;
+
+				$pdf->setXY($setXStart+15,$yAxisBefore);
+				$pdf->Multicell(15,($tinggi*$t_baris), str_replace(',00','',number_format($data['total_request'],'2',',','.')),$garis,'C');				
+
+				$pdf->setY($yAxisBefore);
+				$yAxisBeforeInt = $yAxisBefore;
+				$bln_up = date('Y-m-01', strtotime("+1 year", strtotime($periode)));
+
+				foreach ($data['warna'] as $index2 => $data_warna) {
+					// print_r($data_warna); echo '<hr/>';
+					//=====index nya 0....9
+
+					// echo $data['nama'].'<br/>';
+					// print_r($data_warna);
+					// echo '<hr/>';
+	
+
+					$pdf->SetTextColor(0,0,0);
+					$status_fill = 0;
+					if (trim($classStatus[$index][$data_warna['warna_id']][$bln_up]) == 'finished') {
+						// echo '1';
+						$status_fill = 1;
+						$pdf->setFillColor(175,245,175);
+					}elseif(trim($classStatus[$index][$data_warna['warna_id']][$bln_up]) == 'revised'){
+						// echo '2';
+						$status_fill = 1;
+						$pdf->setFillColor(255,255,82);
+					}elseif(trim($classStatus[$index][$data_warna['warna_id']][$bln_up]) == 'revised-urgent'){
+						// echo '3';
+						$status_fill = 1;
+						$pdf->setFillColor(255,255,82);
+						$pdf->SetTextColor(255,0,0);
+					}elseif(trim($classStatus[$index][$data_warna['warna_id']][$bln_up]) == 'urgent'){
+						// echo '4';
+						$status_fill = 1;
+						$pdf->setFillColor(255,128,120);
+					}
+
+					// echo $classStatus[$index][$data_warna['warna_id']][$bln_up].'<br/>';
+                    //=====cek ada keterangan ga
+                    $tamb_baris_ket = 0;
+                    if (isset($keterangan_qty[$periode][$barang_id][$data_warna['warna_id']])) {
+                        $tamb_baris_ket = 1;
+                    }
+
+                    $brs_warna = $data_warna['jumlah_baris'];
+                    //=====index nya 0....9
+                    //=====print garis + space kiri=======
+                    $pdf->setY($yAxisBeforeInt);
+                    $pdf->setX($setXStart+15+15);
+                    $pdf->Multicell(1,($tinggi*($brs_warna+$tamb_baris_ket)),'', $garis ,'C', $status_fill);
+
+                    //=====print nama warna=======
+                    $pdf->setY($yAxisBeforeInt);
+                    $pdf->setX($setXStart+16+15);
+                    $pdf->Multicell(44,($tinggi*($brs_warna+$tamb_baris_ket)),$data_warna['nama'],'B','L', $status_fill);
+                    // $pdf->Multicell(44,($tinggi*$data_warna['jumlah_baris']),"LORENG LORENG DK OBSIDIANSSSSS",'B','L');
+
+                    
+                    //=====print qty request tiap warna=======
+                    $pdf->setY($yAxisBeforeInt);
+                    $pdf->setX($setXStart+60+15);
+                    $pdf->Multicell(14,($tinggi*$brs_warna),$data_warna['qty_warna'], $garis ,'R', $status_fill);
+                    
+                    //=====print garis + space kanan=======
+                    $pdf->setY($yAxisBeforeInt);
+                    $pdf->setX($setXStart+75+14);
+                    $pdf->Multicell(1,($tinggi*$brs_warna),'','B','C', $status_fill);
+
+                    
+                    //=====print qty terkirim=======
+                    $pdf->setXY($setXStart+15+30+15+52.5+15,$yAxisBeforeInt);
+                    $pdf->Multicell(12.5,($tinggi*$brs_warna), $data_warna['terkirim'],$garis_kanan,'C', $status_fill);
+
+                    $yAxisBeforeInt += ($tinggi*($brs_warna+$tamb_baris_ket) );
+				}
+				
+				$pdf->setY($yAxisBefore);
+
+                foreach ($data['warna'] as $index2 => $data_warna) {
+                    foreach ($data_warna['data'] as $index3 => $isi_data) {
+                        // $status_fill = 0;
+
+                        $pdf->SetTextColor(0,0,0);
+                        $status_fill = 0;
+                        if (trim($classStatus[$index][$data_warna['warna_id']][$bln_up]) == 'finished') {
+                            // echo '1';
+                            $status_fill = 1;
+                            $pdf->setFillColor(175,245,175);
+                        }elseif(trim($classStatus[$index][$data_warna['warna_id']][$bln_up]) == 'revised'){
+                            // echo '2';
+                            $status_fill = 1;
+                            $pdf->setFillColor(255,255,82);
+                        }elseif(trim($classStatus[$index][$data_warna['warna_id']][$bln_up]) == 'revised-urgent'){
+                            // echo '3';
+                            $status_fill = 1;
+                            $pdf->setFillColor(255,255,82);
+                            $pdf->SetTextColor(255,0,0);
+                        }elseif(trim($classStatus[$index][$data_warna['warna_id']][$bln_up]) == 'urgent'){
+                            // echo '4';
+                            $status_fill = 1;
+                            $pdf->setFillColor(255,128,120);
+                        }
+
+                        if ($isi_data['status_urgent']) {
+                            // $status_fill = 1;
+                            // $pdf->setFillColor(255,128,120);
+                        }
+
+
+                        $pdf->setX($setXStart+15+45+15+15);
+                        //========isi index 3 = nama object================
+                        // print_r($isi_data); echo '<hr/>';
+                        $pdf->Cell(1,$tinggi,'', $garis ,0,'C', $status_fill);
+                        if ($isi_data['po_number'] == 'PO BARU') {
+                            $pdf->SetFont( $font_name_bold, '', $general_font_size );
+                        }
+                        $pdf->Cell(24,$tinggi,$isi_data['po_number'],'B',0,'L', $status_fill);
+                        $pdf->SetFont( $font_name, '', $general_font_size );
+                        $pdf->Cell(11.5,$tinggi, str_replace(',00','',number_format($isi_data['qty'],'2',',','.'))  , $garis,0,'R', $status_fill);
+                        $pdf->Cell(1,$tinggi,'','B',1,'C', $status_fill);
+                    }
+                    
+                    if (isset($keterangan_qty[$periode][$barang_id][$data_warna['warna_id']])) {
+                        // $pdf->setY($yAxisBefore+=$tinggi);
+                        $pdf->setX($setXStart+60+15);
+                        //========isi index 3 = nama object================
+                        // print_r($isi_data); echo '<hr/>';
+                        $pdf->Cell(1,$tinggi,'', $garis ,0,'C', $status_fill);
+                        $pdf->SetFont( $font_name, '', '6' );
+                        $pdf->Cell(14,$tinggi,"KETERANGAN",'B',0,'C', $status_fill);
+                        $pdf->SetFont( $font_name, '', $general_font_size );
+                        $pdf->Cell(1,$tinggi, ''  , "LB",0,'L', $status_fill);
+                        $pdf->Cell(48,$tinggi, $keterangan_qty[$periode][$barang_id][$data_warna['warna_id']]  ,"B",0,'L', $status_fill);
+                        $pdf->Cell(1,$tinggi,'','BR',1,'C', $status_fill);
+                        $yAxisBefore += $tinggi;
+                    }
+                }
+                
+			}
+			$pdf->SetFont( $font_name_bold, '', 10 );
+
+			$pdf->setX($setXStart);
+			
+			// $pdf->Cell(15,6,"TOTAL",'LB',0,'C');
+			// $pdf->Cell(15,6,str_replace(',00','',number_format($g_total[$periode],'2',',','.')),'LB',0,'C');
+			// $pdf->Cell(110,6,'','LBR',0,'L');
+
+			$pdf->Cell(75,6,"TOTAL REQUEST",'LB',0,'C');
+			$pdf->Cell(65,6,str_replace(',00','',number_format($g_total[$periode],'2',',','.')),'LBR',1,'C');
+			
+			if (!isset($total_terkirim[$bln_up])) {
+				$total_terkirim[$bln_up] = 0;
+			}
+			$pdf->setX($setXStart);
+			$pdf->Cell(75,6,"TOTAL TERKIRIM",'LB',0,'C');
+			$pdf->Cell(65,6,str_replace(',00','',number_format($total_terkirim[$bln_up],'2',',','.')),'LBR',1,'C');
+
+			$pdf->setX($setXStart);
+			$pdf->Cell(75,6,"SELISIH",'LB',0,'C');
+			$pdf->Cell(65,6,str_replace(',00','',number_format($g_total[$periode] - $total_terkirim[$bln_up],'2',',','.')),'LBR',1,'C');
+			
+			
+			// $yAxisBefore = $pdf->getY();
+			// $yAxisAfter = $pdf->getY();
+			
+		}
+
+
+		$pdf->Output( 'request_barang.pdf', "I" );
+					

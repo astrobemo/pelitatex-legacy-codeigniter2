@@ -1,0 +1,162 @@
+SELECT barang_id, warna_id 			
+	, ROUND( SUM( if(gudang_id=2, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok,qty_masuk,0) , qty_masuk ), 0) , 0 ) ),2) - ROUND(SUM( if(gudang_id=2, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok, qty_keluar,0 ), qty_keluar ) ,0), 0 ) ), 2) as gudang_2_qty , SUM( if(gudang_id=2, if(tanggal_stok is not null, if(tanggal >= tanggal_stok,jumlah_roll_masuk,0 ), jumlah_roll_masuk), 0 ) ) - SUM( if(gudang_id=2, if(tanggal_stok is not null, if(tanggal >= tanggal_stok, jumlah_roll_keluar, 0) ,jumlah_roll_keluar), 0 ) ) as gudang_2_roll, concat('2','/',barang_id,'/',warna_id) as gudang_2_button, 
+	if(gudang_id=2,if(tanggal_stok is not null AND tanggal_penyesuaian is not null, if(tanggal_stok > tanggal_penyesuaian, 0 , 1 ) , if(tanggal_penyesuaian is not null, 1, 0) ),0) as gudang_2_status , 
+
+	ROUND( SUM( if(gudang_id=1, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok,qty_masuk,0) , qty_masuk ), 0) , 0 ) ),2) - ROUND(SUM( if(gudang_id=1, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok, qty_keluar,0 ), qty_keluar ) ,0), 0 ) ), 2) as gudang_1_qty , SUM( if(gudang_id=1, if(tanggal_stok is not null, if(tanggal >= tanggal_stok,jumlah_roll_masuk,0 ), jumlah_roll_masuk), 0 ) ) - SUM( if(gudang_id=1, if(tanggal_stok is not null, if(tanggal >= tanggal_stok, jumlah_roll_keluar, 0) ,jumlah_roll_keluar), 0 ) ) as gudang_1_roll, concat('1','/',barang_id,'/',warna_id) as gudang_1_button, if(gudang_id=1,if(tanggal_stok is not null && tanggal_penyesuaian is not null, if(tanggal_stok > tanggal_penyesuaian, 0 , 1 ) , if(tanggal_penyesuaian is not null, 1, 0) ),0) as gudang_1_status , 
+
+	ROUND( SUM( if(gudang_id=3, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok,qty_masuk,0) , qty_masuk ), 0) , 0 ) ),2) - ROUND(SUM( if(gudang_id=3, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok, qty_keluar,0 ), qty_keluar ) ,0), 0 ) ), 2) as gudang_3_qty , SUM( if(gudang_id=3, if(tanggal_stok is not null, if(tanggal >= tanggal_stok,jumlah_roll_masuk,0 ), jumlah_roll_masuk), 0 ) ) - SUM( if(gudang_id=3, if(tanggal_stok is not null, if(tanggal >= tanggal_stok, jumlah_roll_keluar, 0) ,jumlah_roll_keluar), 0 ) ) as gudang_3_roll, concat('3','/',barang_id,'/',warna_id) as gudang_3_button, if(gudang_id=3,if(tanggal_stok is not null && tanggal_penyesuaian is not null, if(tanggal_stok > tanggal_penyesuaian, 0 , 1 ) , if(tanggal_penyesuaian is not null, 1, 0) ),0) as gudang_3_status , 
+
+	ROUND( SUM( if(gudang_id=5, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok,qty_masuk,0) , qty_masuk ), 0) , 0 ) ),2) - ROUND(SUM( if(gudang_id=5, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok, qty_keluar,0 ), qty_keluar ) ,0), 0 ) ), 2) as gudang_5_qty , SUM( if(gudang_id=5, if(tanggal_stok is not null, if(tanggal >= tanggal_stok,jumlah_roll_masuk,0 ), jumlah_roll_masuk), 0 ) ) - SUM( if(gudang_id=5, if(tanggal_stok is not null, if(tanggal >= tanggal_stok, jumlah_roll_keluar, 0) ,jumlah_roll_keluar), 0 ) ) as gudang_5_roll, concat('5','/',barang_id,'/',warna_id) as gudang_5_button, if(gudang_id=5,if(tanggal_stok is not null && tanggal_penyesuaian is not null, if(tanggal_stok > tanggal_penyesuaian, 0 , 1 ) , if(tanggal_penyesuaian is not null, 1, 0) ),0) as gudang_5_status , 
+
+	ROUND( SUM( if(gudang_id=4, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok,qty_masuk,0) , qty_masuk ), 0) , 0 ) ),2) - ROUND(SUM( if(gudang_id=4, ifnull( if(tanggal_stok is not null, if(tanggal >= tanggal_stok, qty_keluar,0 ), qty_keluar ) ,0), 0 ) ), 2) as gudang_4_qty , SUM( if(gudang_id=4, if(tanggal_stok is not null, if(tanggal >= tanggal_stok,jumlah_roll_masuk,0 ), jumlah_roll_masuk), 0 ) ) - SUM( if(gudang_id=4, if(tanggal_stok is not null, if(tanggal >= tanggal_stok, jumlah_roll_keluar, 0) ,jumlah_roll_keluar), 0 ) ) as gudang_4_roll, concat('4','/',barang_id,'/',warna_id) as gudang_4_button, if(gudang_id=4,if(tanggal_stok is not null && tanggal_penyesuaian is not null, if(tanggal_stok > tanggal_penyesuaian, 0 , 1 ) , if(tanggal_penyesuaian is not null, 1, 0) ),0) as gudang_4_status, if(gudang_id=2, tanggal_penyesuaian,'') as tgl, if(gudang_id=2, tanggal_stok,'') as tgl2
+	,MAX(tanggal) as last_edit 
+	FROM (
+		(
+	        SELECT barang_id, warna_id, nd_penjualan_detail.gudang_id, 0 as qty_masuk, 0 as jumlah_roll_masuk, qty as qty_keluar, jumlah_roll as jumlah_roll_keluar,3 as tipe, tanggal
+	        FROM nd_penjualan_detail
+	        LEFT JOIN (
+	        	SELECT *
+	        	FROM nd_penjualan
+	        	WHERE tanggal <= '2021-02-06'
+	        	AND tanggal >= '2018-01-01'
+	        	AND status_aktif = 1
+	        	) nd_penjualan
+	        ON nd_penjualan_detail.penjualan_id = nd_penjualan.id
+	        LEFT JOIN (
+	            SELECT qty, jumlah_roll, penjualan_detail_id
+	            FROM nd_penjualan_qty_detail
+	            ) nd_penjualan_qty_detail
+	        ON nd_penjualan_qty_detail.penjualan_detail_id = nd_penjualan_detail.id
+	        where nd_penjualan.id is not null
+	    )UNION(
+	        SELECT barang_id, warna_id, t1.gudang_id, 0 as qty_masuk, 0 as jumlah_roll_masuk, qty as qty_keluar, jumlah_roll as jumlah_roll_keluar,20 as tipe, tanggal
+
+	        FROM nd_pengeluaran_stok_lain_detail t1
+	        LEFT JOIN (
+	        	SELECT *
+	        	FROM nd_pengeluaran_stok_lain
+	        	WHERE tanggal <= '2021-02-06'
+	        	AND tanggal >= '2018-01-01'
+	        	AND status_aktif = 1
+	        	) t2
+	        ON t1.pengeluaran_stok_lain_id = t2.id
+	        LEFT JOIN (
+	            SELECT qty, jumlah_roll, pengeluaran_stok_lain_detail_id
+	            FROM nd_pengeluaran_stok_lain_qty_detail
+	            ) t3
+	        ON t3.pengeluaran_stok_lain_detail_id = t1.id
+	        where t2.id is not null
+	    )UNION(
+	        SELECT barang_id, warna_id, nd_pembelian.gudang_id, qty, jumlah_roll, 0, 0, 1, tanggal
+	        FROM nd_pembelian_detail
+	        LEFT JOIN (
+	        	SELECT *
+	        	FROM nd_pembelian
+	        	WHERE tanggal <= '2021-02-06'
+	        	AND tanggal >= '2018-01-01'
+	        	AND status_aktif = 1
+	        	) nd_pembelian
+	        ON nd_pembelian_detail.pembelian_id = nd_pembelian.id
+	        WHERE nd_pembelian.id is not null
+	    )UNION(
+	    	SELECT barang_id, warna_id, gudang_id_after, qty, jumlah_roll, 0, 0,2, tanggal
+        	FROM nd_mutasi_barang t1
+			WHERE tanggal <= '2021-02-06'
+        	AND tanggal >= '2018-01-01'
+        	AND status_aktif = 1
+	    )UNION(
+	    	SELECT barang_id, warna_id, nd_retur_jual_detail.gudang_id, qty, jumlah_roll, 0, 0, 4, tanggal
+	        FROM nd_retur_jual_detail
+	        LEFT JOIN (
+	        	SELECT *
+	        	FROM nd_retur_jual
+	        	WHERE tanggal <= '2021-02-06'
+	        	AND tanggal >= '2018-01-01'
+	        	AND status_aktif = 1
+	        	) nd_retur_jual
+	        ON nd_retur_jual_detail.retur_jual_id = nd_retur_jual.id
+	        LEFT JOIN (
+	            SELECT qty, jumlah_roll, retur_jual_detail_id
+	            FROM nd_retur_jual_qty
+	            ) nd_penjualan_qty_detail
+	        ON nd_penjualan_qty_detail.retur_jual_detail_id = nd_retur_jual_detail.id
+	        WHERE nd_retur_jual.id is not null
+	    )UNION(
+	    	SELECT barang_id, warna_id, nd_retur_beli_detail.gudang_id,0,0, sum(qty) , sum(jumlah_roll) ,19, tanggal as last_edit
+	        FROM nd_retur_beli_detail
+	        LEFT JOIN (
+	        	SELECT *
+	        	FROM nd_retur_beli
+	        	WHERE tanggal <= '2021-02-06'
+	        	AND tanggal >= '2018-01-01'
+	        	AND status_aktif = 1
+	        	) nd_retur_beli
+	        ON nd_retur_beli_detail.retur_beli_id = nd_retur_beli.id
+	        LEFT JOIN (
+	            SELECT sum(qty*jumlah_roll) as qty, sum(jumlah_roll) as jumlah_roll, retur_beli_detail_id
+	            FROM nd_retur_beli_qty
+	            GROUP BY retur_beli_detail_id
+	            ) nd_penjualan_qty_detail
+	        ON nd_penjualan_qty_detail.retur_beli_detail_id = nd_retur_beli_detail.id
+	        WHERE nd_retur_beli.id is not null
+	        GROUP BY barang_id, warna_id,nd_retur_beli_detail.gudang_id
+	    )UNION(
+	        SELECT barang_id, warna_id, gudang_id, qty, jumlah_roll, 0, 0,5, tanggal
+        	FROM nd_penyesuaian_stok
+        	WHERE tipe_transaksi = 0
+            AND tanggal <= '2021-02-06'
+        	AND tanggal >= '2018-01-01'
+	    )UNION(
+	        SELECT barang_id, warna_id, gudang_id, if(tipe_transaksi = 1,qty, 0 ), if(tipe_transaksi = 1,jumlah_roll,0 ), if(tipe_transaksi = 2,qty, 0 ), if(tipe_transaksi=2,jumlah_roll,0),6, tanggal
+        	FROM nd_penyesuaian_stok
+        	WHERE tanggal <= '2021-02-06'
+        	AND tanggal >= '2018-01-01'
+        	AND tipe_transaksi != 0
+	    )UNION(
+	    	SELECT barang_id, warna_id, gudang_id_before, 0, 0 , qty, jumlah_roll,8, tanggal
+        	FROM nd_mutasi_barang t1
+			WHERE tanggal <= '2021-02-06'	
+		    AND tanggal >= '2018-01-01'
+        	AND status_aktif = 1
+	    )UNION(
+	    	SELECT barang_id, warna_id, gudang_id, qty, jumlah_roll, 0, 0, 9, tanggal 
+        	FROM nd_stok_opname_detail t1 
+			LEFT JOIN (
+				SELECT *
+				FROM nd_stok_opname
+				WHERE tanggal <= '2021-02-06'	
+			    AND tanggal >= '2018-01-01'
+	        	AND status_aktif = 1
+				) t2
+			ON t1.stok_opname_id = t2.id
+	    )
+	)t1
+	LEFT JOIN (
+		SELECT barang_id as barang_id_stok, warna_id as warna_id_stok,gudang_id as gudang_id_stok, MAX(tanggal) as tanggal_stok
+	    FROM (
+	    	SELECT stok_opname_id, barang_id,warna_id, gudang_id
+	    	FROM blessingtdj_system2021.nd_stok_opname_detail
+	    	GROUP BY barang_id, warna_id, gudang_id, stok_opname_id
+		) tA
+		LEFT JOIN (
+			SELECT *
+			FROM blessingtdj_system2021.nd_stok_opname
+			WHERE status_aktif = 1
+		) tB
+		ON tA.stok_opname_id = tB.id
+		WHERE tB.id is not null
+		GROUP BY barang_id, warna_id, gudang_id
+	) t2
+	ON t1.barang_id = t2.barang_id_stok
+	AND t1.warna_id = t2.warna_id_stok
+	AND t1.gudang_id = t2.gudang_id_stok
+	LEFT JOIN (
+		SELECT barang_id as barang_id_penyesuaian, warna_id as warna_id_penyesuaian,gudang_id as gudang_id_penyesuaian, MAX(tanggal) as tanggal_penyesuaian
+	    FROM nd_penyesuaian_stok
+		GROUP BY barang_id, warna_id, gudang_id
+		) t3
+	ON t1.barang_id = t3.barang_id_penyesuaian
+	AND t1.warna_id = t3.warna_id_penyesuaian
+	AND t1.gudang_id = t3.gudang_id_penyesuaian
+	WHERE barang_id=27
+	GROUP BY barang_id, warna_id

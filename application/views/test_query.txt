@@ -1,0 +1,553 @@
+SELECT concat_ws(' ',first_name,last_name) as name, vehicle_code, do.date, driver_id, tambahan, status_fee, rit, 
+if(status_fee = 1 AND rit = 1 ,
+ CASE weekday(do.date)
+     WHEN 5 
+        THEN 
+            CASE saturday_status
+                WHEN 1 THEN driver_fee + saturday_amount
+                WHEN 2 THEN driver_fee * saturday_amount
+                ELSE 0
+                END
+     WHEN 6
+        THEN 
+            CASE sunday_status
+                WHEN 1 THEN driver_fee + sunday_amount
+                WHEN 2 THEN driver_fee * sunday_amount
+                ELSE 0
+                END
+     ELSE driver_fee
+     END,
+ if(status_fee = 2 AND rit = 1,
+    CASE weekday(do.date)
+        WHEN 5
+            THEN 
+                CASE saturday_status
+                    WHEN 1 THEN driver_assistant_fee + saturday_amount
+                    WHEN 2 THEN driver_assistant_fee * saturday_amount
+                    ELSE 0
+                    END
+        WHEN 6
+            THEN 
+                CASE sunday_status
+                    WHEN 1 THEN driver_assistant_fee + sunday_amount
+                    WHEN 2 THEN driver_assistant_fee * sunday_amount
+                    ELSE 0
+                    END
+        ELSE driver_assistant_fee
+        END
+         ,0 )) as driver_fee,
+if(rit = 1,
+    CAST((
+    CASE tambahan 
+        WHEN 1 THEN driver_fee/2
+        WHEN 2 THEN driver_assistant_fee/2
+        WHEN 3 THEN (driver_fee + driver_assistant_fee)
+        WHEN 4 THEN driver_assistant_fee*2
+        ELSE 0
+        end) as UNSIGNED),
+    CAST((CASE tambahan
+        WHEN 1 THEN driver_rit_fee/2
+        WHEN 2 THEN driver_assistant_rit_fee/2
+        WHEN 3 THEN (driver_fee + driver_assistant_rit_fee)
+        WHEN 4 THEN driver_assistant_rit_fee*2
+        ELSE 0
+        end) as UNSIGNED))
+as tambahan_fee,
+if(status_fee = 1 AND rit = 2 ,driver_rit_fee,if(status_fee = 2 AND rit = 2,driver_assistant_rit_fee,0 )) as rit_fee
+from (
+    (select date, driver_id,sum(CASE WHEN driver_assistant1_id = -1 THEN 2 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 1 as status_fee, route_list_id, vehicle_id
+    from delivery_order
+    where customer_id = 1
+    and driver_id != 0
+    and driver_id != -1
+    group by delivery_instruction
+    )
+    UNION
+    (select date, driver_assistant1_id,sum(CASE WHEN driver_id = -1 THEN 1 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 2 as status_fee, route_list_id, vehicle_id
+    from delivery_order
+    where customer_id = 1
+    and driver_assistant1_id != 0
+    and driver_assistant1_id != -1
+    group by delivery_instruction)
+    UNION
+    (select date, driver_assistant2_id,sum(CASE WHEN driver_id = -1 THEN 1 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 2 as status_fee, route_list_id, vehicle_id
+    from delivery_order 
+    where customer_id = 1
+    and driver_assistant2_id != 0
+    and driver_assistant2_id != -1
+    group by delivery_instruction)    
+) as do
+LEFT JOIN route_list
+ON do.route_list_id = route_list.id
+LEFT JOIN payroll_driver_period 
+ON do.date >= payroll_driver_period.date_start 
+AND do.date <= payroll_driver_period.date_end 
+LEFT JOIN payroll_driver_settings_period 
+ON (
+    SELECT payroll_driver_settings_period.period
+    FROM payroll_driver_settings_period
+    WHERE payroll_driver_settings_period.period <= do.date
+    ORDER BY payroll_driver_settings_period.period desc 
+    limit 1 ) = payroll_driver_settings_period.period 
+LEFT JOIN payroll_driver_settings
+ON payroll_driver_settings_period.id = payroll_driver_settings.payroll_driver_settings_period_id
+LEFT JOIN employee
+on do.driver_id = employee.id
+LEFT JOIN vehicle
+ON do.vehicle_id = vehicle.id
+order by driver_id,date
+
+
+
+//========================================
+
+SELECT concat_ws(' ',first_name,last_name) as name, vehicle_code, do.date, do.driver_id, tambahan, status_fee, rit, 
+if(status_fee = 1 AND rit = 1 ,
+ CASE weekday(do.date)
+     WHEN 5 
+        THEN 
+            CASE saturday_status
+                WHEN 1 THEN driver_fee + saturday_amount
+                WHEN 2 THEN driver_fee * saturday_amount
+                ELSE 0
+                END
+     WHEN 6
+        THEN 
+            CASE sunday_status
+                WHEN 1 THEN driver_fee + sunday_amount
+                WHEN 2 THEN driver_fee * sunday_amount
+                ELSE 0
+                END
+     ELSE driver_fee
+     END,
+ if(status_fee = 2 AND rit = 1,
+    CASE weekday(do.date)
+        WHEN 5
+            THEN 
+                CASE saturday_status
+                    WHEN 1 THEN driver_assistant_fee + saturday_amount
+                    WHEN 2 THEN driver_assistant_fee * saturday_amount
+                    ELSE 0
+                    END
+        WHEN 6
+            THEN 
+                CASE sunday_status
+                    WHEN 1 THEN driver_assistant_fee + sunday_amount
+                    WHEN 2 THEN driver_assistant_fee * sunday_amount
+                    ELSE 0
+                    END
+        ELSE driver_assistant_fee
+        END
+         ,0 )) as driver_fee,
+
+if(rit = 1,
+    if(weekday(do.date) = 5,
+        CAST((
+            CASE saturday_status
+            WHEN 1
+                THEN
+                    CASE tambahan 
+                        WHEN 1 THEN (driver_fee/2) + saturday_amount
+                        WHEN 2 THEN (driver_assistant_fee/2) + saturday_amount
+                        WHEN 3 THEN (driver_fee + driver_assistant_fee) + saturday_amount
+                        WHEN 4 THEN (driver_assistant_fee*2 ) + saturday_amount
+                        ELSE 0
+                        end
+            WHEN 2
+                THEN
+                    CASE tambahan 
+                        WHEN 1 THEN (driver_fee/2) * saturday_amount
+                        WHEN 2 THEN (driver_assistant_fee/2) * saturday_amount
+                        WHEN 3 THEN (driver_fee + driver_assistant_fee) * saturday_amount
+                        WHEN 4 THEN (driver_assistant_fee*2 ) * saturday_amount
+                        ELSE 0
+                        end   
+            ELSE 0
+        END ) as UNSIGNED) ,
+
+        if(weekday(do.date) = 6 ,
+            CAST((
+                CASE saturday_status
+                WHEN 1
+                    THEN
+                        CASE tambahan 
+                            WHEN 1 THEN (driver_fee/2) + saturday_amount
+                            WHEN 2 THEN (driver_assistant_fee/2) + saturday_amount
+                            WHEN 3 THEN (driver_fee + driver_assistant_fee) + saturday_amount
+                            WHEN 4 THEN (driver_assistant_fee*2 ) + saturday_amount
+                            ELSE 0
+                            end
+                WHEN 2
+                    THEN
+                        CASE tambahan 
+                            WHEN 1 THEN (driver_fee/2) * saturday_amount
+                            WHEN 2 THEN (driver_assistant_fee/2) * saturday_amount
+                            WHEN 3 THEN (driver_fee + driver_assistant_fee) * saturday_amount
+                            WHEN 4 THEN (driver_assistant_fee*2 ) * saturday_amount
+                            ELSE 0
+                            end   
+                ELSE 0
+            END ) as UNSIGNED)
+                ,
+            CAST((
+                CASE tambahan 
+                    WHEN 1 THEN (driver_fee/2) 
+                    WHEN 2 THEN (driver_assistant_fee/2) 
+                    WHEN 3 THEN (driver_fee + driver_assistant_fee) 
+                    WHEN 4 THEN (driver_assistant_fee*2 ) 
+                    ELSE 0
+            END ) as UNSIGNED)
+                )),
+
+    if(weekday(do.date) = 5,
+        CAST((
+            CASE saturday_status
+            WHEN 1
+                THEN
+                    CASE tambahan 
+                        WHEN 1 THEN (driver_rit_fee/2) + saturday_amount
+                        WHEN 2 THEN (driver_assistant_rit_fee/2) + saturday_amount
+                        WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) + saturday_amount
+                        WHEN 4 THEN (driver_assistant_rit_fee*2 ) + saturday_amount
+                        ELSE 0
+                        end
+            WHEN 2
+                THEN
+                    CASE tambahan 
+                        WHEN 1 THEN (driver_rit_fee/2) * saturday_amount
+                        WHEN 2 THEN (driver_assistant_rit_fee/2) * saturday_amount
+                        WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) * saturday_amount
+                        WHEN 4 THEN (driver_assistant_rit_fee*2 ) * saturday_amount
+                        ELSE 0
+                        end   
+            ELSE 0
+        END ) as UNSIGNED) ,
+
+            if(weekday(do.date) = 6 ,
+            CAST((
+                CASE saturday_status
+                WHEN 1
+                    THEN
+                        CASE tambahan 
+                            WHEN 1 THEN (driver_rit_fee/2) + saturday_amount
+                            WHEN 2 THEN (driver_assistant_rit_fee/2) + saturday_amount
+                            WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) + saturday_amount
+                            WHEN 4 THEN (driver_assistant_rit_fee*2 ) + saturday_amount
+                            ELSE 0
+                            end
+                WHEN 2
+                    THEN
+                        CASE tambahan 
+                            WHEN 1 THEN (driver_rit_fee/2) * saturday_amount
+                            WHEN 2 THEN (driver_assistant_rit_fee/2) * saturday_amount
+                            WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) * saturday_amount
+                            WHEN 4 THEN (driver_assistant_rit_fee*2 ) * saturday_amount
+                            ELSE 0
+                            end   
+                ELSE 0
+            END ) as UNSIGNED)
+                ,
+            CAST((
+                CASE tambahan 
+                    WHEN 1 THEN (driver_rit_fee/2) 
+                    WHEN 2 THEN (driver_assistant_rit_fee/2) 
+                    WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) 
+                    WHEN 4 THEN (driver_assistant_rit_fee*2 ) 
+                    ELSE 0
+            END ) as UNSIGNED)
+                ))
+)as tambahan_fee,
+if(status_fee = 1 AND rit = 2 ,driver_rit_fee,if(status_fee = 2 AND rit = 2,driver_assistant_rit_fee,0 )) as rit_fee,
+if(monthly_bonus_status = 1, monthly_bonus_amount, "no") as monthly_bonus_amount, 
+if(annual_bonus_status =1, annual_bonus_amount, "no") as annual_bonus_amount, 
+if(absence_bonus_status=1, absence_bonus_amount, "no") as absence_bonus_amount, 
+if(debt_status=1, kasbon_total, "no") as kasbon_total, 
+if(claim_status=1,claim_total,"no") as claim_total,
+payroll_driver_detail.debt_amount as debt_paid,
+payroll_driver_detail.claim_amount as claim_paid
+from (
+    (select date, driver_id,sum(CASE WHEN driver_assistant1_id = -1 THEN 2 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 1 as status_fee, route_list_id, vehicle_id
+    from delivery_order
+    where customer_id = 1
+    and driver_id != 0
+    and driver_id != -1
+    group by delivery_instruction
+    )
+    UNION
+    (select date, driver_assistant1_id,sum(CASE WHEN driver_id = -1 THEN 1 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 2 as status_fee, route_list_id, vehicle_id
+    from delivery_order
+    where customer_id = 1
+    and driver_assistant1_id != 0
+    and driver_assistant1_id != -1
+    group by delivery_instruction)
+    UNION
+    (select date, driver_assistant2_id,sum(CASE WHEN driver_id = -1 THEN 1 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 2 as status_fee, route_list_id, vehicle_id
+    from delivery_order 
+    where customer_id = 1
+    and driver_assistant2_id != 0
+    and driver_assistant2_id != -1
+    group by delivery_instruction)    
+) as do
+LEFT JOIN route_list
+ON do.route_list_id = route_list.id
+LEFT JOIN payroll_driver_period 
+ON do.date >= payroll_driver_period.date_start 
+AND do.date <= payroll_driver_period.date_end 
+LEFT JOIN payroll_driver_settings_period 
+ON (
+    SELECT payroll_driver_settings_period.period
+    FROM payroll_driver_settings_period
+    WHERE payroll_driver_settings_period.period <= do.date
+    ORDER BY payroll_driver_settings_period.period desc 
+    limit 1 ) = payroll_driver_settings_period.period 
+LEFT JOIN payroll_driver_settings
+ON payroll_driver_settings_period.id = payroll_driver_settings.payroll_driver_settings_period_id
+LEFT JOIN employee
+on do.driver_id = employee.id
+LEFT JOIN vehicle
+ON do.vehicle_id = vehicle.id
+LEFT JOIN (
+    Select sum(amount) as kasbon_total, driver_id
+    from kasbon_detail
+    where status = 2
+    group by driver_id 
+    ) as kasbon_detail
+ON do.driver_id = kasbon_detail.driver_id
+LEFT JOIN (
+    Select sum(amount) as claim_total, driver_id
+    from claim_detail
+    group by driver_id
+    ) as claim_detail
+ON do.driver_id = claim_detail.driver_id
+LEFT JOIN payroll_driver_detail
+ON do.driver_id = payroll_driver_detail.driver_id
+AND payroll_driver_period_id = 5
+order by driver_id,date
+
+//==============================================================
+
+SELECT concat_ws(" ",first_name,last_name) as name, vehicle_code, do.date, do.driver_id, tambahan, status_fee, rit, 
+sum( if(status_fee = 1 AND rit = 1 ,
+         CASE weekday(do.date)
+             WHEN 5 
+                THEN 
+                    CASE saturday_status
+                        WHEN 1 THEN driver_fee + saturday_amount
+                        WHEN 2 THEN driver_fee * saturday_amount
+                        ELSE 0
+                        END
+             WHEN 6
+                THEN 
+                    CASE sunday_status
+                        WHEN 1 THEN driver_fee + sunday_amount
+                        WHEN 2 THEN driver_fee * sunday_amount
+                        ELSE 0
+                        END
+             ELSE driver_fee
+             END,
+         if(status_fee = 2 AND rit = 1,
+            CASE weekday(do.date)
+                WHEN 5
+                    THEN 
+                        CASE saturday_status
+                            WHEN 1 THEN driver_assistant_fee + saturday_amount
+                            WHEN 2 THEN driver_assistant_fee * saturday_amount
+                            ELSE 0
+                            END
+                WHEN 6
+                    THEN 
+                        CASE sunday_status
+                            WHEN 1 THEN driver_assistant_fee + sunday_amount
+                            WHEN 2 THEN driver_assistant_fee * sunday_amount
+                            ELSE 0
+                            END
+                ELSE driver_assistant_fee
+                END
+                 ,0 )) 
+        )as driver_fee,
+
+sum( if(rit = 1,
+        if(weekday(do.date) = 5,
+            CAST((
+                CASE saturday_status
+                WHEN 1
+                    THEN
+                        CASE tambahan 
+                            WHEN 1 THEN (driver_fee/2) + saturday_amount
+                            WHEN 2 THEN (driver_assistant_fee/2) + saturday_amount
+                            WHEN 3 THEN (driver_fee + driver_assistant_fee) + saturday_amount
+                            WHEN 4 THEN (driver_assistant_fee*2 ) + saturday_amount
+                            ELSE 0
+                            end
+                WHEN 2
+                    THEN
+                        CASE tambahan 
+                            WHEN 1 THEN (driver_fee/2) * saturday_amount
+                            WHEN 2 THEN (driver_assistant_fee/2) * saturday_amount
+                            WHEN 3 THEN (driver_fee + driver_assistant_fee) * saturday_amount
+                            WHEN 4 THEN (driver_assistant_fee*2 ) * saturday_amount
+                            ELSE 0
+                            end   
+                ELSE 0
+            END ) as UNSIGNED) ,
+
+            if(weekday(do.date) = 6 ,
+                CAST((
+                    CASE saturday_status
+                    WHEN 1
+                        THEN
+                            CASE tambahan 
+                                WHEN 1 THEN (driver_fee/2) + saturday_amount
+                                WHEN 2 THEN (driver_assistant_fee/2) + saturday_amount
+                                WHEN 3 THEN (driver_fee + driver_assistant_fee) + saturday_amount
+                                WHEN 4 THEN (driver_assistant_fee*2 ) + saturday_amount
+                                ELSE 0
+                                end
+                    WHEN 2
+                        THEN
+                            CASE tambahan 
+                                WHEN 1 THEN (driver_fee/2) * saturday_amount
+                                WHEN 2 THEN (driver_assistant_fee/2) * saturday_amount
+                                WHEN 3 THEN (driver_fee + driver_assistant_fee) * saturday_amount
+                                WHEN 4 THEN (driver_assistant_fee*2 ) * saturday_amount
+                                ELSE 0
+                                end   
+                    ELSE 0
+                END ) as UNSIGNED)
+                    ,
+                CAST((
+                    CASE tambahan 
+                        WHEN 1 THEN (driver_fee/2) 
+                        WHEN 2 THEN (driver_assistant_fee/2) 
+                        WHEN 3 THEN (driver_fee + driver_assistant_fee) 
+                        WHEN 4 THEN (driver_assistant_fee*2 ) 
+                        ELSE 0
+                END ) as UNSIGNED)
+                    )),
+
+        if(weekday(do.date) = 5,
+            CAST((
+                CASE saturday_status
+                WHEN 1
+                    THEN
+                        CASE tambahan 
+                            WHEN 1 THEN (driver_rit_fee/2) + saturday_amount
+                            WHEN 2 THEN (driver_assistant_rit_fee/2) + saturday_amount
+                            WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) + saturday_amount
+                            WHEN 4 THEN (driver_assistant_rit_fee*2 ) + saturday_amount
+                            ELSE 0
+                            end
+                WHEN 2
+                    THEN
+                        CASE tambahan 
+                            WHEN 1 THEN (driver_rit_fee/2) * saturday_amount
+                            WHEN 2 THEN (driver_assistant_rit_fee/2) * saturday_amount
+                            WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) * saturday_amount
+                            WHEN 4 THEN (driver_assistant_rit_fee*2 ) * saturday_amount
+                            ELSE 0
+                            end   
+                ELSE 0
+            END ) as UNSIGNED) ,
+
+                if(weekday(do.date) = 6 ,
+                CAST((
+                    CASE saturday_status
+                    WHEN 1
+                        THEN
+                            CASE tambahan 
+                                WHEN 1 THEN (driver_rit_fee/2) + saturday_amount
+                                WHEN 2 THEN (driver_assistant_rit_fee/2) + saturday_amount
+                                WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) + saturday_amount
+                                WHEN 4 THEN (driver_assistant_rit_fee*2 ) + saturday_amount
+                                ELSE 0
+                                end
+                    WHEN 2
+                        THEN
+                            CASE tambahan 
+                                WHEN 1 THEN (driver_rit_fee/2) * saturday_amount
+                                WHEN 2 THEN (driver_assistant_rit_fee/2) * saturday_amount
+                                WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) * saturday_amount
+                                WHEN 4 THEN (driver_assistant_rit_fee*2 ) * saturday_amount
+                                ELSE 0
+                                end   
+                    ELSE 0
+                END ) as UNSIGNED)
+                    ,
+                CAST((
+                    CASE tambahan 
+                        WHEN 1 THEN (driver_rit_fee/2) 
+                        WHEN 2 THEN (driver_assistant_rit_fee/2) 
+                        WHEN 3 THEN (driver_rit_fee + driver_assistant_rit_fee) 
+                        WHEN 4 THEN (driver_assistant_rit_fee*2 ) 
+                        ELSE 0
+                END ) as UNSIGNED)
+                    ))
+    )
+)as tambahan_fee,
+sum( if(status_fee = 1 AND rit = 2 ,driver_rit_fee,if(status_fee = 2 AND rit = 2,driver_assistant_rit_fee,0 )) ) as rit_fee,
+if(monthly_bonus_status = 1, monthly_bonus_amount, "no") as monthly_bonus_amount, 
+if(annual_bonus_status =1, annual_bonus_amount, "no") as annual_bonus_amount, 
+if(absence_bonus_status=1, absence_bonus_amount, "no") as absence_bonus_amount, 
+if(debt_status=1, kasbon_total, "no") as kasbon_total, 
+if(claim_status=1,claim_total,"no") as claim_total,
+payroll_driver_detail.debt_amount as debt_paid,
+payroll_driver_detail.claim_amount as claim_paid
+from (
+    (select date, driver_id,sum(CASE WHEN driver_assistant1_id = -1 THEN 2 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 1 as status_fee, route_list_id, vehicle_id
+    from delivery_order
+    where customer_id = 1
+    and driver_id != 0
+    and driver_id != -1
+    group by delivery_instruction
+    )
+    UNION
+    (select date, driver_assistant1_id,sum(CASE WHEN driver_id = -1 THEN 1 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 2 as status_fee, route_list_id, vehicle_id
+    from delivery_order
+    where customer_id = 1
+    and driver_assistant1_id != 0
+    and driver_assistant1_id != -1
+    group by delivery_instruction)
+    UNION
+    (select date, driver_assistant2_id,sum(CASE WHEN driver_id = -1 THEN 1 WHEN driver_assistant2_id = -1 THEN 2 else 0 end) as tambahan, 2 as status_fee, route_list_id, vehicle_id
+    from delivery_order 
+    where customer_id = 1
+    and driver_assistant2_id != 0
+    and driver_assistant2_id != -1
+    group by delivery_instruction)    
+) as do
+LEFT JOIN route_list
+ON do.route_list_id = route_list.id
+LEFT JOIN payroll_driver_period 
+ON do.date >= payroll_driver_period.date_start 
+AND do.date <= payroll_driver_period.date_end 
+LEFT JOIN payroll_driver_settings_period 
+ON (
+    SELECT payroll_driver_settings_period.period
+    FROM payroll_driver_settings_period
+    WHERE payroll_driver_settings_period.period <= do.date
+    ORDER BY payroll_driver_settings_period.period desc 
+    limit 1 ) = payroll_driver_settings_period.period 
+LEFT JOIN payroll_driver_settings
+ON payroll_driver_settings_period.id = payroll_driver_settings.payroll_driver_settings_period_id
+LEFT JOIN employee
+on do.driver_id = employee.id
+LEFT JOIN vehicle
+ON do.vehicle_id = vehicle.id
+LEFT JOIN (
+    Select sum(amount) as kasbon_total, driver_id
+    from kasbon_detail
+    where status = 2
+    group by driver_id 
+    ) as kasbon_detail
+ON do.driver_id = kasbon_detail.driver_id
+LEFT JOIN (
+    Select sum(amount) as claim_total, driver_id
+    from claim_detail
+    group by driver_id
+    ) as claim_detail
+ON do.driver_id = claim_detail.driver_id
+LEFT JOIN payroll_driver_detail
+ON do.driver_id = payroll_driver_detail.driver_id
+AND payroll_driver_period_id = 5
+group by do.driver_id,vehicle_code
+order by driver_id,date

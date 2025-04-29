@@ -1,0 +1,116 @@
+SELECT * FROM `nd_customer` 
+WHERE nama LIKE '%Ade Umar%' 
+OR nama LIKE '%Ginanjar Taufik%' 
+OR nama LIKE '%Burhanudin%' 
+OR nama LIKE '%Edhemara Karya%' 
+OR nama LIKE '%Ajid Mulyana%' 
+OR nama LIKE '%Wiwin Zunur%' 
+OR nama LIKE '%Ariyan Mayton%' 
+OR nama LIKE '%Cepi Engkos%' 
+OR nama LIKE '%Asep Wahidin%' 
+OR nama LIKE '%Solihin%' 
+OR nama LIKE '%Afdal%' 
+OR nama LIKE '%Aris Munandar%' 
+OR nama LIKE '%Maman Sidik%' 
+OR nama LIKE '%Wartiwan%' 
+OR nama LIKE '%Wartiman%' 
+OR nama LIKE '%HJ. Uka Kurnia%' 
+OR nama LIKE '%Uyung Baumedin%' 
+OR nama LIKE '%H. Ade Saepul%'
+OR nama LIKE '%Dindin%'
+ORDER BY nama ASC
+
+
+//============================================
+
+//=====================favour===================
+SELECT sum(nilai) as nilai, customer_id, t3.nama as nama_customer, alamat, YEAR(tanggal)
+FROM (
+	SELECT *
+	FROM nd_penjualan
+	WHERE penjualan_type_id != 3
+	AND status_aktif = 1
+	AND customer_id IN (
+		123,525,336,590,297,405,51,486,717,88,519,265,122,150,688,847,418,298,1931,382
+	)
+	AND tanggal >= '2019-05-03'
+)t1
+LEFT JOIN (
+	SELECT sum(qty * harga_jual) as nilai, penjualan_id
+	FROM nd_penjualan_detail tA
+	LEFT JOIN (
+		SELECT penjualan_detail_id, sum(qty * if(jumlah_roll =0,1, jumlah_roll)) as qty
+		FROM nd_penjualan_qty_detail
+		GROUP BY penjualan_detail_id
+	)tB
+	ON tB.penjualan_detail_id = tA.id
+	GROUP BY penjualan_id
+) t2
+ON t1.id = t2.penjualan_id
+LEFT JOIN nd_customer t3
+ON t1.customer_id = t3.id
+GROUP BY YEAR(tanggal), customer_id
+ORDER BY t3.nama ASC
+
+//=====================grace===================
+SELECT sum(nilai) as nilai, customer_id, t3.nama as nama_customer, alamat, YEAR(tanggal)
+FROM (
+	SELECT *
+	FROM nd_penjualan
+	WHERE penjualan_type_id != 3
+	AND status_aktif = 1
+	AND customer_id IN (
+		15,90,131,70, 174,33,91,327,170,343,158,206,157,22
+	)
+	AND tanggal >= '2020-05-03'
+	AND tanggal < '2021-05-03'
+)t1
+LEFT JOIN (
+	SELECT sum(qty * harga_jual) as nilai, penjualan_id
+	FROM nd_penjualan_detail tA
+	LEFT JOIN (
+		SELECT penjualan_detail_id, sum(qty * if(jumlah_roll =0,1, jumlah_roll)) as qty
+		FROM nd_penjualan_qty_detail
+		GROUP BY penjualan_detail_id
+	)tB
+	ON tB.penjualan_detail_id = tA.id
+	GROUP BY penjualan_id
+) t2
+ON t1.id = t2.penjualan_id
+LEFT JOIN nd_customer t3
+ON t1.customer_id = t3.id
+GROUP BY customer_id
+ORDER BY t3.nama ASC, YEAR(tanggal) asc
+
+//=====================blessing===================
+SELECT sum(nilai) as nilai, customer_id, t3.nama as nama_customer, alamat, YEAR(tanggal)
+FROM (
+	SELECT *
+	FROM nd_penjualan
+	WHERE penjualan_type_id != 3
+	AND status_aktif = 1
+	AND customer_id IN (
+		7,429,43,12,217,16,203,6,30,31,265, 185, 511, 1186
+	)
+	AND tanggal >= '2020-05-03'
+	AND tanggal < '2021-05-03'
+)t1
+LEFT JOIN (
+	SELECT sum(qty * harga_jual) as nilai, penjualan_id
+	FROM nd_penjualan_detail tA
+	LEFT JOIN (
+		SELECT penjualan_detail_id, sum(qty * if(jumlah_roll =0,1, jumlah_roll)) as qty
+		FROM nd_penjualan_qty_detail
+		GROUP BY penjualan_detail_id
+	)tB
+	ON tB.penjualan_detail_id = tA.id
+	GROUP BY penjualan_id
+) t2
+ON t1.id = t2.penjualan_id
+LEFT JOIN nd_customer t3
+ON t1.customer_id = t3.id
+GROUP BY customer_id
+ORDER BY t3.nama ASC
+
+
+

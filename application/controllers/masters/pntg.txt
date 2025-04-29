@@ -1,0 +1,40 @@
+openssl req -new -x509 -days 365 -key /var/www/pelita_ca/blsgtdj/pelita.key -out /var/www/pelita_ca/blsgtdj/pelita.crt
+
+openssl req -newkey rsa:2048 -nodes -keyout /var/www/pelita_ca/blsgtdj/client_blessing.key -out /var/www/pelita_ca/blsgtdj/client_blessing.csr
+
+openssl x509 -req -days 1460 -in /var/www/pelita_ca/blsgtdj/client_blessing.csr -CA /var/www/pelita_ca/blsgtdj/pelita_blessing.crt -CAkey /var/www/pelita_ca/blsgtdj/pelita_blessing.key -set_serial 11 -out /var/www/pelita_ca/blsgtdj/client_blessing.crt
+
+openssl req -newkey rsa:2048 -nodes -keyout /var/www/pelita_ca/blsgtdj/blessing_server.key -out /var/www/pelita_ca/blsgtdj/blessing_server.csr -extensions req_ext -config /var/www/pelita_ca/blsgtdj/san.cnf
+
+openssl x509 -req -days 365 -in /var/www/pelita_ca/blessing/blessing_server.csr -CA /var/www/pelita_ca/blsgtdj/pelita.crt -CAkey /var/www/pelita_ca/blessing/pelita.key -set_serial 12 -out /var/www/pelita_ca/blsgtdj/blessing_server.crt
+
+openssl pkcs12 -export -out /var/www/pelita_ca/blsgtdj/client_blessing2023.p12 -inkey /var/www/pelita_ca/blsgtdj/client_blessing.key -in /var/www/pelita_ca/blsgtdj/client_blessing.crt -certfile /var/www/pelita_ca/blsgtdj/pelita_blessing.crt
+
+//===================================================================================
+
+openssl req -new -x509 -days 365 -key /var/www/pelita_ca/grctdj/pelita.key -out /var/www/pelita_ca/grctdj/pelita.crt
+
+openssl req -newkey rsa:2048 -nodes -keyout /var/www/pelita_ca/grctdj/client_grace.key -out /var/www/pelita_ca/grctdj/client_grace.csr
+
+openssl x509 -req -days 1460 -in /var/www/pelita_ca/grctdj/client_grace.csr -CA /var/www/pelita_ca/grctdj/pelita_grace.crt -CAkey /var/www/pelita_ca/grctdj/pelita_grace.key -set_serial 21 -out /var/www/pelita_ca/grctdj/client_grace.crt
+
+openssl req -newkey rsa:2048 -nodes -keyout /var/www/pelita_ca/grctdj/grace_server.key -out /var/www/pelita_ca/grctdj/grace_server.csr -extensions req_ext -config /var/www/pelita_ca/grctdj/san.cnf
+
+openssl x509 -req -days 365 -in /var/www/pelita_ca/grace/grace_server.csr -CA /var/www/pelita_ca/grctdj/pelita.crt -CAkey /var/www/pelita_ca/grace/pelita.key -set_serial 22 -out /var/www/pelita_ca/grctdj/grace_server.crt
+
+openssl pkcs12 -export -out /var/www/pelita_ca/grctdj/client_grace2023.p12 -inkey /var/www/pelita_ca/grctdj/client_grace.key -in /var/www/pelita_ca/grctdj/client_grace.crt -certfile /var/www/pelita_ca/grctdj/pelita_grace.crt
+
+
+//===================================================================================
+
+openssl req -new -x509 -days 365 -key /var/www/pelita_ca/fvrtdj/pelita.key -out /var/www/pelita_ca/fvrtdj/pelita.crt
+
+openssl req -newkey rsa:2048 -nodes -keyout /var/www/pelita_ca/fvrtdj/client_favour.key -out /var/www/pelita_ca/fvrtdj/client_favour.csr
+
+openssl x509 -req -days 1460 -in /var/www/pelita_ca/fvrtdj/client_favour.csr -CA /var/www/pelita_ca/fvrtdj/pelita_favour.crt -CAkey /var/www/pelita_ca/fvrtdj/pelita_favour.key -set_serial 01 -out /var/www/pelita_ca/fvrtdj/client_favour.crt
+
+openssl req -newkey rsa:2048 -nodes -keyout /var/www/pelita_ca/fvrtdj/favour_server.key -out /var/www/pelita_ca/fvrtdj/favour_server.csr -extensions req_ext -config /var/www/pelita_ca/fvrtdj/san.cnf
+
+openssl x509 -req -days 365 -in /var/www/pelita_ca/favour/favour_server.csr -CA /var/www/pelita_ca/fvrtdj/pelita.crt -CAkey /var/www/pelita_ca/favour/pelita.key -set_serial 02 -out /var/www/pelita_ca/fvrtdj/favour_server.crt
+
+openssl pkcs12 -export -out /var/www/pelita_ca/fvrtdj/client_favour2023.p12 -inkey /var/www/pelita_ca/fvrtdj/client_favour.key -in /var/www/pelita_ca/fvrtdj/client_favour.crt -certfile /var/www/pelita_ca/fvrtdj/pelita_favour.crt

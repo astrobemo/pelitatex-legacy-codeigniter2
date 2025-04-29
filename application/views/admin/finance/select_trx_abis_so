@@ -1,0 +1,55 @@
+SELECT 1, barang_id, warna_id, gudang_id, qty, selisih as jumlah_roll
+FROM (
+	SELECT barang_id,warna_id, gudang_id, qty, sum(ifnull(jumlah_roll_masuk,0)) as jumlah_roll_masuk, sum(ifnull(jumlah_roll_keluar,0)) as jumlah_roll_keluar, sum(ifnull(jumlah_roll_masuk,0)) - sum(ifnull(jumlah_roll_keluar,0)) as selisih
+	FROM (
+		(
+			SELECT barang_id,warna_id,gudang_id, qty, sum(jumlah_roll) as jumlah_roll_masuk, 0 as jumlah_roll_keluar, 1 as tipe
+			FROM nd_stok_opname_transaksi
+			WHERE status = 1
+			OR status = 3
+			GROUP BY barang_id,warna_id, gudang_id, qty
+		)UNION(
+			SELECT barang_id,warna_id,gudang_id, qty, 0, sum(jumlah_roll) as jumlah_roll_keluar, 2 as tipe
+			FROM nd_stok_opname_transaksi
+			WHERE status = 2
+			OR status = 4
+			GROUP BY barang_id,warna_id, gudang_id, qty
+		)UNION(
+			SELECT barang_id,warna_id, gudang_id, qty, sum(jumlah_roll) as jumlah_roll_masuk, 0, 3 as tipe
+			FROM nd_stok_opname_detail_temp
+			GROUP BY barang_id,warna_id, gudang_id, qty
+		)
+	)result
+	GROUP BY barang_id, gudang_id,warna_id, qty
+)result
+AND selisih > 0
+
+INSERT INTO nd_hasil_SO(stok_opname_id, barang_id, warna_id, gudang_id, qty, jumlah_roll) 
+VALUE
+DELETE FROM `nd_stok_opname_transaksi` WHERE barang_id=1 AND warna_id=36 AND gudang_id=1 AND status=1
+
+SELECT t1.*, t2.qty_t, t2.jumlah_roll_t
+FROM (
+	SELECT barang_id, warna_id, t2.gudang_id, sum(qty) as qty, sum(jumlah_roll) as jumlah_roll
+	FROM nd_pembelian_detail t1
+	LEFT JOIN nd_pembelian t2
+	ON t1.pembelian_id = t2.id
+	WHERE created >= '2020-12-23 00:00:00'
+	AND tanggal < '2021-01-01'
+	AND barang_id=13
+	AND warna_id=3
+	AND t2.gudang_id=1
+	GROUP BY barang_id,warna_id, gudang_id
+)t1
+LEFT JOIN (
+	SELECT barang_id, warna_id, gudang_id, sum(qty* jumlah_roll) as qty_t, sum(jumlah_roll) as jumlah_roll_t
+	FROM nd_stok_opname_transaksi
+	WHERE status = 1
+	GROUP BY barang_id, warna_id, gudang_id
+)t2
+ON t1.barang_id=t2.barang_id
+AND t1.warna_id=t2.warna_id
+AND t1.gudang_id=t2.gudang_id
+WHERE t1.qty != t2.qty_t
+OR t1.jumlah_roll != t2.jumlah_roll_t
+OR qty_t is null
