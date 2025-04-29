@@ -1,0 +1,125 @@
+.status_aktif_0{
+	display: none;
+}
+
+.status_column{
+	display: none;
+}
+
+.padding-rl-5{
+	padding: 0 5px 0 5px;
+}
+
+.padding-rl-10{
+	padding: 0 10px 0 10px;
+}
+
+.padding-rl-25{
+	padding: 0 25px 0 25px;
+}
+
+.td-isi-bold{
+	font-weight: bold;
+}
+
+.free-input-sm{
+	width:70px; 
+	border:none 
+}
+
+.free-input-md{
+	width:100px; 
+	border:none 
+}
+
+.free-input-lg{
+	width:150px; 
+	border:none 
+}
+
+/*==========================================================================*/
+
+#form_add_data .supplier-input{
+	background:#eff3f8;
+}
+
+#form_add_data .gudang-input{
+	background:#ddd;
+}
+
+.caution{
+	background: #fffba3;
+}
+
+.warning{
+	background: #f72e4c;
+}
+
+/*==============================================================================*/
+
+.notifikasi-akunting{
+	position: fixed;
+	right: 0;
+	top: 126px;
+	padding: 20px;
+	background: orange;
+}
+
+.notifikasi-akunting hr{
+	padding: 2px 0 ;
+	margin: 2px 0;
+}
+
+
+/*==============================================================================*/
+
+.page-header-menu{
+	background: #333 !important;
+	border-bottom: 2px solid #E87E04;
+}
+
+.page-header-menu a{
+	color: #fff;
+}
+
+.page-header .page-header-menu .hor-menu .navbar-nav > li.open > a, .page-header .page-header-menu .hor-menu .navbar-nav > li > a:hover{
+	color: #23dbdb !important;
+	background: transparent !important;
+}
+
+.page-header-menu li.active a {
+	color: #23dbdb !important;
+	background: transparent !important;
+}
+
+.page-header-menu li.active ul li a {
+	color: #ced5de !important;
+	background: transparent !important;
+}
+
+.page-header .page-header-menu .hor-menu .navbar-nav > li.active > a > i, .page-header .page-header-menu .hor-menu .navbar-nav > li.active > a:hover > i, .page-header .page-header-menu .hor-menu .navbar-nav > li.current > a > i, .page-header .page-header-menu .hor-menu .navbar-nav > li.current > a:hover > i{
+	color: #fff;
+	text-shadow: 0px 0px 20px #fff;
+}
+
+
+.page-header-menu li.active a:hover {
+	color: #23dbdb !important;
+	background: transparent !important;
+}
+
+.theme-font{
+	color: #E87E04 !important;
+}
+
+.page-header .page-header-top{
+	background: #34495E;
+}
+
+
+
+.menu-dropdown .active{
+	background: hsla(210, 29%, 29%, 0.7);
+}
+
+

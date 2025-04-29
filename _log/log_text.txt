@@ -1,0 +1,59 @@
+1	Master	Barang	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan barang
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Mengubah Nama barang menjadi Nama Beli atau Nama Jual
+			Memformat Digit Grouping pada Harga Beli dan Harga Jual
+			Membuat Validasi untuk Nama Barang dan Nama Beli agar tidak double
+			Membuat Validasi untuk Harga Jual agar lebih besar dari Harga Beli
+			Menghide Jenis Barang
+			
+2	Master	Satuan	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan satuan
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Menjadikan Satuan dalam satu tab dengan Barang
+			Validasi Satuan agar tidak double input
+			
+3	Master	Warna	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan warna
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Menjadikan Warna dalam satu tab dengan Barang
+			Validasi Warna Beli dan Warna Jual agar tidak double input
+			Memberikan Color Picker pada Kode Warna
+			
+4	Master	Supplier	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan supplier
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Validasi Nama dan Kode agar tidak double input
+			
+5	Master	Customer	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan customer
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Validasi Nama agar tidak double input
+			Menggabungkan Filter "Tipe Bayar" dan "Aktivasi" dalam satu baris tampilan
+			Validasi Nama agar tidak double input
+			Tambahan field medsos link (di table nd_customer, varchar(1000), posisi : terakhir setelah user_id)
+			Dapat membuat folder baru "./image/customer/customer_{index}"
+			Ganti field IMG_link menjadi npwp_link
+			Tambahan field ktp_link (di table nd_customer, varchar(500), posisi : setelah npwp_link)
+			Apabila gambar tidak ada, diganti dengan gambar "blank.png"
+			
+6	Master	Alamat Lain "customer"	Diakses dari List Customer, Terdapat tab Setelah List Customer dengan nama Alamat Lain
+			
+7	Master	Toko	Penggantian List menjadi Single Input Form
+			
+8	Master	Rekening	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan rekening
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Validasi Nama agar tidak double input
+			Menjadikan Rekening dalam satu tab dengan Toko
+			Validasi Nama Bank dan Nomor Rekening agar tidak double input
+			
+9	Master	Gudang	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan gudang
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Validasi Nama agar tidak double input
+			Menjadikan Gudang dalam satu tab dengan Toko
+			
+10	Master	Printer	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan gudang
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Validasi Nama agar tidak double input
+			Tambah field status_aktif, tipe : int(1)
+			Menjadikan Printer dalam satu tab dengan Toko
+			
+11	Master	User	Memberikan notifikasi ketika mengaktifkan atau menonaktifkan user
+			Membuat rata tengah pada tampilan datatable, judul kolom
+			Validasi Nama agar tidak double input
+			Menjadikan User dalam satu tab dengan Toko
