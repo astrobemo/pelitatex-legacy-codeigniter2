@@ -2335,7 +2335,7 @@ class Master extends CI_Controller
 		"nik asc, npwp asc",
 		"nik desc, npwp desc"];
 
-		$aColumns = array('status_aktif', 'nama', 'alias', 'customer_type', 'alamat', 'kota', 'telepon1', 'npwp', 'tempo_kredit', 'limit_data', 'other_data');
+		$aColumns = array('status_aktif', 'nama', 'alias', 'customer_type', 'alamat', 'kota', 'telepon1', 'npwp', 'tempo_kredit', 'limit_data', 'limit_data', 'other_data');
 
 		$sIndexColumn = "id";
 

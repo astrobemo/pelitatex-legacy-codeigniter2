@@ -93,37 +93,34 @@
                                         <th scope="col" class='status_column text-center'>
                                             Status Aktif
                                         </th>
-                                        <th scope="col" class="text-center" index="1">
+                                        <th scope="col" class="text-center">
                                             Nama
                                         </th>
-                                        <th scope="col" class="status_column text-center" index="2">
+                                        <th scope="col" class="text-center">
                                             Alias
                                         </th>
-                                        <th scope="col" class="text-center" index="3">
+                                        <th scope="col" class="text-center">
                                             Tipe
                                         </th>
-                                        <th scope="col" class="text-center" index="4">
+                                        <th scope="col" class="text-center">
                                             Alamat
                                         </th>
-                                        <th scope="col" class="text-center" index="5">
+                                        <th scope="col" class="text-center">
                                             Identitas
                                         </th>
-                                        <th scope="col" class="status_column text-center">
+                                        <th scope="col" class="text-center">
                                             <i class='fa fa-phone-square'></i> 1
                                         </th>
                                         <th scope="col" class='status_column text-center'>
                                             <i class='fa fa-phone-square'></i>2
                                         </th>
-                                        <th scope="col" class="text-center" index="8">
+                                        <th scope="col" class="text-center">
                                             Tempo
                                         </th>
-                                        <th scope="col" class="text-center" index="9">
+                                        <th scope="col" class="text-center">
                                             Limit Kredit
                                         </th>
-                                        <th scope="col" class="text-center" index="10">
-                                            Source
-                                        </th>
-                                        <th scope="col" style="min-width:100px !important" class="text-center" index="11">
+                                        <th scope="col" style="min-width:100px !important" class="text-center">
                                             Actions
                                         </th>
                                     </tr>
@@ -926,8 +923,8 @@ jQuery(document).ready(function() {
 
     $("#general_table").DataTable({
         "fnCreatedRow": function(nRow, aData, iDataIndex) {
-            var other_data = $('td:eq(11)', nRow).text().split('-?-');
-            
+            var other_data = $('td:eq(10)', nRow).text().split('-?-');
+            // console.log(other_data);
             var limit_data = $('td:eq(9)', nRow).text().split(',');
             var kode_pos = other_data[0];
             if (kode_pos == null) {
@@ -1041,10 +1038,7 @@ jQuery(document).ready(function() {
             var kode_pos = "<b><span class='kode_pos' style='color:green'>" + kode_pos + "</span></b>";
 
             $('td:eq(0)', nRow).html($('td:eq(0)', nRow).text());
-
             $('td:eq(0)', nRow).addClass('status_column');
-            $('td:eq(2)', nRow).addClass('status_column');
-            $('td:eq(6)', nRow).addClass('status_column');
             $('td:eq(7)', nRow).addClass('status_column');
 
             // var link_img = "<span class='npwp-link'></span>";
@@ -1063,7 +1057,7 @@ jQuery(document).ready(function() {
             $('td:eq(8)', nRow).html('<span class="tempo_kredit">' + $('td:eq(8)', nRow).text() + '</span>');
 
             $('td:eq(9)', nRow).html(limit_action);
-            $('td:eq(11)', nRow).html(action);
+            $('td:eq(10)', nRow).html(action);
 
             // console.log(action);
             // $(nRow).addClass('status_aktif_'+status_aktif);
