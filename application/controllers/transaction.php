@@ -2516,8 +2516,9 @@ class Transaction extends CI_Controller {
                         'amount' => 0,
                         'user_id' => is_user_id() 
                     );
-        
-                    $this->common_model->db_update('nd_pembayaran_penjualan', $update_bayar ,'id',$id);
+
+                            
+                    $this->common_model->db_update('nd_pembayaran_penjualan', $update_bayar ,'penjualan_id',$id);
         
                     $get_new_address = $this->common_model->db_select('nd_customer where id='.$customer_id);
                     foreach ($get_new_address as $row) {
@@ -2546,6 +2547,8 @@ class Transaction extends CI_Controller {
                 'jatuh_tempo' => $jatuh_tempo,
                 'nama_keterangan' => $nama,
                 'alamat_keterangan' => $alamat,
+                'nama_cust_fp'=> $nama,
+                'alamat_cust_fp'=> $alamat,
                 'fp_status' => $this->input->post('fp_status'),
                 'user_id' => is_user_id(),
                 'ppn' => $this->input->post('ppn')
@@ -2740,10 +2743,13 @@ class Transaction extends CI_Controller {
                     $is_custom_view = $row->is_custom_view;
     			}
 
+            $toko_id = 1;
+
+
                 $data['po_penjualan_id'] = $po_penjualan_id;
                 $data['tipe_po'] = $tipe_po;
                 
-                if ($penjualan_type_id != 3) {
+                if ($penjualan_type_id != 3 && $customer_id != '') {
                     $cond_po = '';
                     if ($po_penjualan_id != '') {
                         $cond_po = " OR po_penjualan_id = $po_penjualan_id";
@@ -2773,7 +2779,7 @@ class Transaction extends CI_Controller {
     			$data['data_giro'] = $this->common_model->db_select('nd_pembayaran_penjualan_giro where penjualan_id='.$id);
 
     			$data['saldo_awal'] = 0;
-    			if ($penjualan_type_id != 3) {
+    			if ($penjualan_type_id != 3 && $customer_id != '') {
     				$result = $this->tr_model->get_dp_awal($customer_id, date('Y-m-d'));
     				foreach ($result as $row) {
     					$data['saldo_awal'] = $row->saldo;
@@ -2799,7 +2805,7 @@ class Transaction extends CI_Controller {
                 $data['faktur_link'] = $get_next_bon;
                 $data['penjualan_posisi_barang'] = $this->common_model->db_select('nd_penjualan_posisi_barang where penjualan_id ='.$id);
                 $data['customer_data'] = array();
-                if ($penjualan_type_id != 3) {
+                if ($penjualan_type_id != 3 && $customer_id != '') {
                     $data['customer_data'] = $this->common_model->db_select("nd_customer where id=".$customer_id);
                 }
                 $data['customer_id'] = $customer_id;
@@ -2851,11 +2857,12 @@ class Transaction extends CI_Controller {
             }
 
             if (is_posisi_id() == 1) {
+                // print_r($penjualan_data);
                     $data['content'] = 'admin/transaction/penjualan_list_detail_new4';
                     $this->load->view("admin/template",$data);
                     // print_r($barang_list);
                 // echo $customer_id_get_harga, $tipe_harga;
-                // $this->output->enable_profiler(TRUE);
+                $this->output->enable_profiler(TRUE);
             }
         // }
 	}

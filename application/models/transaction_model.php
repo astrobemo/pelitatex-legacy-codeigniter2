@@ -2526,7 +2526,7 @@ class Transaction_Model extends CI_Model {
 				ifnull(tbl_e.amount,0) as bayar_dp, 
 				if(penjualan_type_id = 3,ifnull(alamat_keterangan,'-') , 
 				if (alamat_keterangan != '',alamat_keterangan, alamat)) as alamat_keterangan, 
-				toko_id, closed_date, f.username as username, g.username as username_close, 
+				tbl_a.toko_id, closed_date, f.username as username, g.username as username_close, 
 				'diambil_semua' as status_ambil, alamat_bon, kecamatan, kelurahan, no_packing_list, kode_pos, ppn, is_custom_view
 			FROM (
 				select t1.id, t1.toko_id, t1.penjualan_type_id, t1.no_faktur, t1.po_number, t1.tanggal, 
@@ -2551,7 +2551,6 @@ class Transaction_Model extends CI_Model {
 					left join nd_surat_jalan t3 
 					on t1.id = t3.penjualan_id
 					WHERE t1.id = $id
-					AND t1.tanggal >= '$this->tanggal_start_program'
 				) as tbl_a
 			LEFT JOIN (
 				SELECT id, concat(ifnull(if(tipe_company ='','',concat(tipe_company,' ')),''),nama) as nama,kota, 
