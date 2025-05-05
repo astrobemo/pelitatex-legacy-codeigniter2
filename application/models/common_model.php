@@ -1585,25 +1585,33 @@ class Common_Model extends CI_Model
 	{
 		$query = $this->db->query("SELECT *
 			FROM (
-				SELECT nama, alias,
-						if(customer_type_id = 1,'NON-KREDIT','KREDIT') as customer_type,
-							customer_type_id, concat_ws('?',alamat,blok,no,LPAD(rt,3,'0'),LPAD(rw,3,'0'),kecamatan, kelurahan) alamat, 
-							concat(ifnull(kota,''),'??',ifnull(provinsi,'')) as kota , telepon1, telepon2, npwp, nik, status_aktif,
-							concat(tempo_kredit,'/',warning_kredit) as tempo_kredit, 
-							concat_ws('-?-',
-								ifnull(kode_pos,''),
-								ifnull(email,''),
-								ifnull(npwp,'0'),
-								status_aktif,id, customer_type_id, ifnull(nik,''),'', ifnull(tipe_company,''),
-								ifnull(medsos_link, ''), ifnull(npwp_link, ''), ifnull(ktp_link, ''), 1, ifnull(contact_person, '')
-								) as other_data, 
-							concat_ws(',',ifnull(limit_amount,'-'), 
-								ifnull(limit_atas,'-'),
-								ifnull(limit_warning_type,'-'), 
-								ifnull(limit_warning_amount,''), '-'
-								) as limit_data
-				FROM nd_customer t1
-				) A
+				SELECT cust.*, CONCAT(ifnull(registered_date,'-'), '??',ifnull(source_type,'-'),'??', ifnull(source_detail,'')) as source_data
+				FROM (
+					SELECT nama, alias, id,
+							if(customer_type_id = 1,'NON-KREDIT','KREDIT') as customer_type,
+								customer_type_id, concat_ws('?',alamat,blok,no,LPAD(rt,3,'0'),LPAD(rw,3,'0'),kecamatan, kelurahan) alamat, 
+								concat(ifnull(kota,''),'??',ifnull(provinsi,'')) as kota , telepon1, telepon2, npwp, nik, status_aktif,
+								concat(tempo_kredit,'/',warning_kredit) as tempo_kredit, 
+								concat_ws('-?-',
+									ifnull(kode_pos,''),
+									ifnull(email,''),
+									ifnull(npwp,'0'),
+									status_aktif,id, customer_type_id, ifnull(nik,''),'', ifnull(tipe_company,''),
+									ifnull(medsos_link, ''), ifnull(npwp_link, ''), ifnull(ktp_link, ''), 1, ifnull(contact_person, '')
+									) as other_data, 
+								concat_ws(',',ifnull(limit_amount,'-'), 
+									ifnull(limit_atas,'-'),
+									ifnull(limit_warning_type,'-'), 
+									ifnull(limit_warning_amount,''), '-'
+									) as limit_data
+					FROM nd_customer t1
+				)cust
+				LEFT JOIN (
+					SELECT customer_id, registered_date, source_detail, source_type 
+					FROM nd_customer_source
+				) ncs
+				ON cust.id = ncs.customer_id 
+			) A
 			$sWhere
             $sOrder
             $sLimit

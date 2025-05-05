@@ -19,6 +19,17 @@
     max-height: 100%;
 }
 
+.inputSource{
+    display: none;
+    width:100px;
+    border:1px solid #ccc;
+    padding: 5px;
+}
+
+.btn-save-source, .sourceDetailInput{
+    display: none;
+}
+
 <? if (is_posisi_id() !=1) {
     ?>.kolom-id {
         display: none;
@@ -99,7 +110,7 @@
                                         <th scope="col" class="status_column text-center" index="2">
                                             Alias
                                         </th>
-                                        <th scope="col" class="text-center" index="3">
+                                        <th scope="col" class="status_column text-center" index="3">
                                             Tipe
                                         </th>
                                         <th scope="col" class="text-center" index="4">
@@ -117,10 +128,10 @@
                                         <th scope="col" class="text-center" index="8">
                                             Tempo
                                         </th>
-                                        <th scope="col" class="text-center" index="9">
+                                        <th scope="col" class="status_column text-center" index="9">
                                             Limit Kredit
                                         </th>
-                                        <th scope="col" class="text-center" index="10">
+                                        <th scope="col" class="text-center" index="10" style="min-width:120px !important">
                                             Source
                                         </th>
                                         <th scope="col" style="min-width:100px !important" class="text-center" index="11">
@@ -908,6 +919,7 @@
 <script src="<?php echo base_url('assets_noondev/js/form-customer.js'); ?>"></script>
 
 <script>
+const posisi_id = "<?is_posisi_id();?>";
 jQuery(document).ready(function() {
 
     <?if (!$isMobileAccess) {?>
@@ -924,12 +936,31 @@ jQuery(document).ready(function() {
 
     let customer_id_last = "<?= $customer_id_last ?>";
 
+    $(document).on('click','.radio-source',function(){
+        const id = $(this).data('id');
+        const source = $(this).val();
+
+        if(source == 'other'){
+            $(`#inputSourceDetail${id}`).show();
+        }else{
+            $(`#inputSourceDetail${id}`).hide();
+        }
+        $(`#btnSaveSource${id}`).show();
+
+    });
+
+    $(document).on('change','.registeredInput', function(){
+        const id = $(this).data('id');
+        $(`#btnSaveSource${id}`).show();
+    });
+
+
     $("#general_table").DataTable({
         "fnCreatedRow": function(nRow, aData, iDataIndex) {
-            var other_data = $('td:eq(11)', nRow).text().split('-?-');
+            const other_data = $('td:eq(11)', nRow).text().split('-?-');
             
-            var limit_data = $('td:eq(9)', nRow).text().split(',');
-            var kode_pos = other_data[0];
+            const limit_data = $('td:eq(9)', nRow).text().split(',');
+            let kode_pos = other_data[0];
             if (kode_pos == null) {
                 kode_pos = '';
             }
@@ -1038,14 +1069,16 @@ jQuery(document).ready(function() {
             var data_pos = $('td:eq(5)', nRow).text().split('??');
             var kota = ' Kab/Kota.<b><span class="kota">' + data_pos[0] + '</span></b>';
             var provinsi = '<b style="color:blue"><span class="provinsi">' + (typeof data_pos[1] === 'undefined' ? '' : data_pos[1]) + '</span></b>';
-            var kode_pos = "<b><span class='kode_pos' style='color:green'>" + kode_pos + "</span></b>";
+            kode_pos = "<b><span class='kode_pos' style='color:green'>" + kode_pos + "</span></b>";
 
             $('td:eq(0)', nRow).html($('td:eq(0)', nRow).text());
 
             $('td:eq(0)', nRow).addClass('status_column');
             $('td:eq(2)', nRow).addClass('status_column');
+            $('td:eq(3)', nRow).addClass('status_column');
             $('td:eq(6)', nRow).addClass('status_column');
             $('td:eq(7)', nRow).addClass('status_column');
+            $('td:eq(9)', nRow).addClass('status_column');
 
             // var link_img = "<span class='npwp-link'></span>";
             // if (typeof data_img["customer_" + id + ".jpeg"] !== 'undefined') {
@@ -1064,6 +1097,45 @@ jQuery(document).ready(function() {
 
             $('td:eq(9)', nRow).html(limit_action);
             $('td:eq(11)', nRow).html(action);
+
+            //========================source data=============================
+
+            const source = $('td:eq(10)', nRow).text().split('??');
+            const registered = (source[0] == '-' ? '' : source[0]);
+            const source_type = (source[1] == '-' ? '' : source[1]);
+            const source_detail = (source[2] == '-' ? '' : source[2]);
+
+            const source_show = `
+                reg : <span class='registered'>${registered}</span> 
+                <input type='text' class='registeredInput inputSource inputSource${id}' id="registerSource${id}" data-id="${id}" value='${source_type}' />
+                <br/>
+                sumber: 
+                <span class='source' >${source_type}</span>
+                <div class='input-group inputSource inputSource${id}' style='min-width: 120px;'>
+                    <label>
+                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='instagram'> Instagram</label>
+                    <label>
+                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='facebook'> Facebook</label>
+                    <label>
+                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='google'> Google</label>
+                    <label>
+                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='website'> Website</label>
+                    <label>
+                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='campaign'> Campaign</label>
+                    <label>
+                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='other' id="otherSource${id}"> Other: </label>
+                    <input type='text' class='sourceDetailInput inputSource' id='inputSourceDetail${id}' value='${source_detail}' />
+
+                </div>
+                <span ${source_detail == '-' ? 'hidden' : ''} class='source_detail'>${source_detail}</span>
+                </span>`;
+            let source_btn = '';
+            let source_btn_save = '';
+            if(posisi_id != '6'){
+                source_btn = `<br/><button class='btn default btn-xs' onclick="showFormSource('${id}')">edit</button>`;
+                source_btn_save = `<button class='btn green btn-xs btn-save-source' id="btnSaveSource${id}" onclick="saveFormSource('${id}')">save</button>`;
+            }
+            $('td:eq(10)', nRow).html(source_show+source_btn+source_btn_save);
 
             // console.log(action);
             // $(nRow).addClass('status_aktif_'+status_aktif);
@@ -1547,6 +1619,60 @@ function removePictEditKTP() {
     $('.btn-pict-remove-edit-ktp').hide();
     $('#form_edit_data [name=ktp_link]').val('');
 }
+
+function showFormSource(id) {
+    $(`.inputSource${id}`).show();
+    const registered = $(`#registerSource${id}`).val();
+    $(`#registerSource${id}`).datepicker({
+        autoclose : true,
+        format: "dd/mm/yyyy"
+    });
+
+    if(registered == ''){
+        $(`#registerSource${id}`).val("<?=date('d/m/Y');?>");
+    }
+}
+
+function saveFormSource(id) {
+    const source = $(`.inputSource${id} input[name=source_type]:checked`).val();
+    const registered = $(`#registerSource${id}`).val();
+    let source_detail = $(`#inputSourceDetail${id}`).val();
+
+
+    if (source == undefined) {
+        bootbox.alert('Mohon pilih sumber');
+        return false;
+    } else if (registered == '') {
+        alert('Tanggal registrasi harus diisi!');
+        return false;
+    } else if (source == 'other' && source_detail == undefined) {
+        bootbox.alert('Sumber lain harus diisi');
+        return false;
+    } else if(source != 'other'){
+        source_detail = '';
+    }
+
+    let dataSource = {};
+    dataSource['customer_id'] = id;
+    dataSource['source'] = source;
+    dataSource['registered_date'] = registered;
+    dataSource['source_detail'] = source_detail;
+
+    const url = 'master/update_source_customer';
+    ajax_data_sync(url, dataSource).done(function(data_respond) {
+        if (data_respond == 'OK') {
+            notific8('lime','Data berhasil disimpan!');
+            location.reload();
+        } else {
+            bootbox.alert('Gagal menyimpan data!');
+        }
+    });
+    $(`#btnSaveSource${id}`).hide();    
+    $(`.inputSource${id}`).hide();
+    $(`.inputSource${id} .source`).html(source);
+    $(`.inputSource${id} .source_detail`).html(source_detail);
+};
+
 </script>
 
 <?if ($isMobileAccess) {?>
@@ -1555,6 +1681,8 @@ function removePictEditKTP() {
     
     <script>
     $(document).ready(function() {
+
+            
           //format textbox
           $('#npwp-add').mask('00.000.000.0-000.000', {
                 placeholder: "00.000.000.0-000.000"
