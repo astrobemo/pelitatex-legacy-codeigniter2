@@ -5117,6 +5117,24 @@ function get_data_penjualan_detail_group($id){
 		return $query->result();
 	}
 
+	function get_supplier_for_request($batch_id){
+		$query = $this->db->query("SELECT t1.*, supplier_id
+			FROM (
+				SELECT *
+				FROM nd_request_barang_detail
+				WHERE request_barang_batch_id='$batch_id'
+				AND po_pembelian_batch_id !=0
+				)t1
+			LEFT JOIN nd_po_pembelian_batch t2
+			ON t1.po_pembelian_batch_id=t2.id
+			LEFT JOIN nd_po_pembelian t3
+			ON t2.po_pembelian_id=t3.id
+			GROUP By supplier_id
+			LIMIT 1
+			");
+		return $query->result();
+	}
+
 	function get_active_request_barang($batch_id, $no_request, $tahun){
 		$this->db->simple_query('SET SESSION group_concat_max_len=15000');
 

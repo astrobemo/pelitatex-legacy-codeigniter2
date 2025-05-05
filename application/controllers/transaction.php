@@ -8233,6 +8233,12 @@ class Transaction extends CI_Controller {
         }
 
         $supplier_id = $this->input->get('supplier_id');
+        if ($supplier_id == '' || $supplier_id == 0) {
+            $getSupp = $this->tr_model->get_supplier_for_request($request_barang_id);
+            foreach ($getSupp as $row) {
+                $supplier_id = $row->supplier_id;
+            }
+        }
         $supplier_data = $this->common_model->db_select("nd_supplier where id=$supplier_id");
         $cond_supplier = "WHERE supplier_id = $supplier_id";
         
