@@ -26,7 +26,7 @@
     padding: 5px;
 }
 
-.btn-save-source, .sourceDetailInput{
+.btn-save-source, .sourceDetailInput, .btn-cancel-source{
     display: none;
 }
 
@@ -945,13 +945,7 @@ jQuery(document).ready(function() {
         }else{
             $(`#inputSourceDetail${id}`).hide();
         }
-        $(`#btnSaveSource${id}`).show();
 
-    });
-
-    $(document).on('change','.registeredInput', function(){
-        const id = $(this).data('id');
-        $(`#btnSaveSource${id}`).show();
     });
 
 
@@ -1104,14 +1098,15 @@ jQuery(document).ready(function() {
             const registered = (source[0] == '-' ? '' : source[0]);
             const source_type = (source[1] == '-' ? '' : source[1]);
             const source_detail = (source[2] == '-' ? '' : source[2]);
+            const reg = (registered != '' ? registered.split('-').reverse().join('/') : '');
 
             const source_show = `
-                reg : <span class='registered'>${registered}</span> 
-                <input type='text' class='registeredInput inputSource inputSource${id}' id="registerSource${id}" data-id="${id}" value='${source_type}' />
+                reg : <span id="register${id}" class='spanSource${id}'>${reg}</span> 
+                <input type='text' class='registeredInput inputSource inputSource${id}' id="registerSource${id}" data-id="${id}" value='${reg}' />
                 <br/>
                 sumber: 
-                <span class='source' >${source_type}</span>
-                <div class='input-group inputSource inputSource${id}' style='min-width: 120px;'>
+                <span id="sourceType${id}" class='spanSource${id}' >${source_type}</span>
+                <div class='input-group inputSource inputSource${id}' id="radioSource${id}" style='min-width: 120px;'>
                     <label>
                         <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='instagram'> Instagram</label>
                     <label>
@@ -1121,21 +1116,24 @@ jQuery(document).ready(function() {
                     <label>
                         <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='website'> Website</label>
                     <label>
-                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='campaign'> Campaign</label>
+                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='online-campaign'> Online Campaign</label>
+                    <label>
+                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='offline-campaign'> Offline Campaign</label>
                     <label>
                         <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='other' id="otherSource${id}"> Other: </label>
                     <input type='text' class='sourceDetailInput inputSource' id='inputSourceDetail${id}' value='${source_detail}' />
 
                 </div>
-                <span ${source_detail == '-' ? 'hidden' : ''} class='source_detail'>${source_detail}</span>
-                </span>`;
+                <span ${source_detail == '-' ? 'hidden' : ''} class='spanSource${id}'>${source_detail}</span>`;
             let source_btn = '';
+            let cancel_btn = '';
             let source_btn_save = '';
             if(posisi_id != '6'){
-                source_btn = `<br/><button class='btn default btn-xs' onclick="showFormSource('${id}')">edit</button>`;
+                source_btn = `<br/><button class='btn default btn-xs' id="btnShowSource${id}" onclick="showFormSource('${id}','${reg}','${source_type}','${source_detail}')">edit</button>`;
+                cancel_btn = `<button class='btn red btn-xs btn-cancel-source' id="btnCancelSource${id}" onclick="cancelFormSource('${id}')">cancel</button>`;
                 source_btn_save = `<button class='btn green btn-xs btn-save-source' id="btnSaveSource${id}" onclick="saveFormSource('${id}')">save</button>`;
             }
-            $('td:eq(10)', nRow).html(source_show+source_btn+source_btn_save);
+            $('td:eq(10)', nRow).html(source_show+source_btn+cancel_btn+source_btn_save);
 
             // console.log(action);
             // $(nRow).addClass('status_aktif_'+status_aktif);
@@ -1620,17 +1618,37 @@ function removePictEditKTP() {
     $('#form_edit_data [name=ktp_link]').val('');
 }
 
-function showFormSource(id) {
+function showFormSource(id, reg, source_type, source_detail) {
+    $(`#btnCancelSource${id}`).show();
+    $(`#btnSaveSource${id}`).show();
+    
+    $(`#btnShowSource${id}`).hide();
+    $(".spanSource" + id).hide();
     $(`.inputSource${id}`).show();
-    const registered = $(`#registerSource${id}`).val();
     $(`#registerSource${id}`).datepicker({
         autoclose : true,
         format: "dd/mm/yyyy"
     });
 
-    if(registered == ''){
+
+    if(reg == ''){
         $(`#registerSource${id}`).val("<?=date('d/m/Y');?>");
     }
+
+    if(source_type != ''){
+        $(`#radioSource${id} input[value=${source_type}]`).prop('checked', true);
+        if(source_type == 'other'){            
+            $(`#inputSourceDetail${id}`).show().val(source_detail);
+        }
+    }
+}
+
+function cancelFormSource(id) {
+    $(`#btnShowSource${id}`).show();
+    $(`#btnSaveSource${id}`).hide();
+    $(`#btnCancelSource${id}`).hide();
+    $(`.inputSource${id}`).hide();
+    $(`.spanSource${id}`).show();
 }
 
 function saveFormSource(id) {
@@ -1660,17 +1678,18 @@ function saveFormSource(id) {
 
     const url = 'master/update_source_customer';
     ajax_data_sync(url, dataSource).done(function(data_respond) {
-        if (data_respond == 'OK') {
+        const res = JSON.parse(data_respond);
+        if (res.status) {
             notific8('lime','Data berhasil disimpan!');
             location.reload();
         } else {
             bootbox.alert('Gagal menyimpan data!');
         }
     });
-    $(`#btnSaveSource${id}`).hide();    
+    /* $(`#btnSaveSource${id}`).hide();    
     $(`.inputSource${id}`).hide();
     $(`.inputSource${id} .source`).html(source);
-    $(`.inputSource${id} .source_detail`).html(source_detail);
+    $(`.inputSource${id} .source_detail`).html(source_detail); */
 };
 
 </script>

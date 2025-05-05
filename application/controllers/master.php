@@ -2877,7 +2877,7 @@ class Master extends CI_Controller
 			'source_detail' => $source_detail,
 		);
 		
-		$get = $this->common_model->db_select('FROM nd_customer_source WHERE customer_id='.$customer_id);
+		$get = $this->common_model->db_select('nd_customer_source WHERE customer_id='.$customer_id);
 		$id = '';
 		foreach ($get as $row) {
 			$id = $row->id;
