@@ -2865,6 +2865,34 @@ class Master extends CI_Controller
 		redirect(is_setting_link('master/customer_list'));
 	}
 
+	function update_source_customer(){
+		$customer_id = $this->input->post('customer_id');
+		$source_type = $this->input->post('source_type');
+		$source_detail = $this->input->post('source_detail');
+		$registered_date = is_date_formatter($this->input->post('registered_date'));
+		$data = array(
+			'customer_id' => $customer_id,
+			'registered_date' => $registered_date,
+			'source_type' => $source_type,
+			'source_detail' => $source_detail,
+		);
+		
+		$get = $this->common_model->db_select('FROM nd_customer_source WHERE customer_id='.$customer_id);
+		$id = '';
+		foreach ($get as $row) {
+			$id = $row->id;
+		}
+
+		if($id == ''){
+			$this->common_model->db_insert('nd_customer_source', $data);
+		}else{
+			$this->common_model->db_update('nd_customer_source', $data, 'id', $id);
+		}
+
+
+		echo json_encode(array("status" => TRUE));
+	}
+
 	function customer_profile()
 	{
 		$menu = is_get_url($this->uri->segment(1));

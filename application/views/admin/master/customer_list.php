@@ -1654,7 +1654,7 @@ function saveFormSource(id) {
 
     let dataSource = {};
     dataSource['customer_id'] = id;
-    dataSource['source'] = source;
+    dataSource['source_type'] = source;
     dataSource['registered_date'] = registered;
     dataSource['source_detail'] = source_detail;
 
