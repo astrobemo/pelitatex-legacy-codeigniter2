@@ -269,19 +269,15 @@ foreach ($google_setting as $row) {
 								}
 								
 								foreach ($fp_list_npwp as $row) {
-									if (is_posisi_id() == 1) {
-										// print_r($row);
-										// echo "</hr/>";
-
-										array_push($check_list, array(
-											'id' => $row->rekam_faktur_pajak_email_id,
-											'customer_id' => $row->customer_id,
-											'thread_id' => $row->thread_id,
-											'nama' => $row->nama,
-											'rekam_faktur_pajak_email_id' => $row->rekam_faktur_pajak_email_id
-										));
-									}
-
+									
+									array_push($check_list, array(
+										'id' => $row->rekam_faktur_pajak_email_id,
+										'customer_id' => $row->customer_id,
+										'thread_id' => $row->thread_id,
+										'nama' => $row->nama,
+										'rekam_faktur_pajak_email_id' => $row->rekam_faktur_pajak_email_id
+									));
+									
 									
 									if ($row->thread_id != '' && $row->label_id != 'SENT') {
 										array_push($thread_list, array(
@@ -521,9 +517,7 @@ foreach ($google_setting as $row) {
 								</tr>
 							</table>
 						<?}?>
-						<?if (is_posisi_id() == 1) {?>
-							<a href="https://api.whatsapp.com/send?phone=+6281809552881&phone=+6282321609300&text=test">Test</a>
-						<?}?>
+						
 						<hr/>
 						<table class='table'>
 							<tr>
@@ -752,8 +746,8 @@ const cekTokenBerlaku = () =>{
 			}
 			if (btn_mail) {
 				btn_mail.style.display = 'none';
+				btn_check_mail.style.display = 'none';
 			}
-			btn_check_mail.style.display = 'none';
 			btn_token.style.display = 'inline-block';
 
 			if (resend_btn.length > 0) {

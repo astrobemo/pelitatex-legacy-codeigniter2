@@ -11338,22 +11338,24 @@ class Inventory_Model extends CI_Model {
 			group_concat(nama_barang SEPARATOR '??') as nama_barang,
 			group_concat(nama_warna SEPARATOR '??') as nama_warna,
 			group_concat(qty SEPARATOR '??') as qty_data,
-			group_concat(jumlah_roll SEPARATOR '??') as jumlah_roll_data
+			group_concat(jumlah_roll SEPARATOR '??') as jumlah_roll_data,
+			count(t2.penerimaan_barang_id) as count_sj, no_faktur,
+			status_penerimaan
 			FROM (
 				SELECT *
 				FROM nd_penerimaan_barang
-				)t1
+				WHERE tanggal_input >= '$from 00:00:00'
+				AND tanggal_input <= '$to 23:59:59'
+			)t1
 			LEFT JOIN (
-				SELECT penerimaan_barang_id, tanggal, 
+				SELECT penerimaan_barang_id, tanggal, group_concat(no_faktur) as no_faktur,
 				(nama_jual) as nama_barang, 
 				(warna_jual) as nama_warna, 
 				sum(qty) as qty, sum(jumlah_roll) as jumlah_roll
 				FROM (
 					SELECT *
 					FROM nd_pembelian
-					WHERE tanggal >= '$from'
-					AND tanggal <= '$to'
-					AND status_aktif = 1
+					WHERE status_aktif = 1
 				) tA
 				LEFT JOIN (
 					SELECT pembelian_id, sum(qty) as qty, sum(jumlah_roll) as jumlah_roll, barang_id, warna_id
@@ -11368,7 +11370,72 @@ class Inventory_Model extends CI_Model {
 				GROUP BY barang_id, warna_id, penerimaan_barang_id
 			)t2
 			ON t1.id = t2.penerimaan_barang_id
-			GROUP BY penerimaan_barang_id
+			LEFT JOIN (
+				SELECT penerimaan_barang_id, status_penerimaan, createdAt as status_time
+				FROM nd_penerimaan_barang_status
+				WHERE id IN (
+					SELECT max(id) as id
+					FROM nd_penerimaan_barang_status
+					GROUP BY penerimaan_barang_id
+				)
+			) t3
+			ON t3.penerimaan_barang_id = t1.id
+			WHERE status_penerimaan = 'SUDAH_KONFIRMASI'
+			GROUP BY t1.id
+
+				
+			");
+		return $query->result();
+	}
+
+	function get_penerimaan_barang_unconfirmed(){
+		$query = $this->db->query("SELECT t1.*,tanggal, 
+			group_concat(nama_barang SEPARATOR '??') as nama_barang,
+			group_concat(nama_warna SEPARATOR '??') as nama_warna,
+			group_concat(qty SEPARATOR '??') as qty_data,
+			group_concat(jumlah_roll SEPARATOR '??') as jumlah_roll_data,
+			count(t2.penerimaan_barang_id) as count_sj, no_faktur,
+			status_penerimaan
+			FROM (
+				SELECT t1.*, status_penerimaan
+				FROM nd_penerimaan_barang t1
+				LEFT JOIN (
+					SELECT penerimaan_barang_id, status_penerimaan, createdAt as status_time
+					FROM nd_penerimaan_barang_status
+					WHERE id IN (
+						SELECT max(id) as id
+						FROM nd_penerimaan_barang_status
+						GROUP BY penerimaan_barang_id
+					)
+				) t3
+				ON t3.penerimaan_barang_id = t1.id
+			)t1
+			LEFT JOIN (
+				SELECT penerimaan_barang_id, tanggal, group_concat(no_faktur) as no_faktur,
+				(nama_jual) as nama_barang, 
+				(warna_jual) as nama_warna, 
+				sum(qty) as qty, sum(jumlah_roll) as jumlah_roll
+				FROM (
+					SELECT *
+					FROM nd_pembelian
+					WHERE status_aktif = 1
+				) tA
+				LEFT JOIN (
+					SELECT pembelian_id, sum(qty) as qty, sum(jumlah_roll) as jumlah_roll, barang_id, warna_id
+					FROM nd_pembelian_detail
+					GROUP BY barang_id, warna_id, pembelian_id
+				) tB
+				ON tA.id = tB.pembelian_id
+				LEFT JOIN nd_barang
+				ON tB.barang_id = nd_barang.id
+				LEFT JOIN nd_warna
+				ON tB.warna_id = nd_warna.id
+				GROUP BY barang_id, warna_id, penerimaan_barang_id
+			)t2
+			ON t1.id = t2.penerimaan_barang_id
+			WHERE status_penerimaan != 'SUDAH_KONFIRMASI'
+			GROUP BY t1.id
+
 				
 			");
 		return $query->result();

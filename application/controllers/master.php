@@ -2869,7 +2869,12 @@ class Master extends CI_Controller
 		$customer_id = $this->input->post('customer_id');
 		$source_type = $this->input->post('source_type');
 		$source_detail = $this->input->post('source_detail');
-		$registered_date = is_date_formatter($this->input->post('registered_date'));
+		$registered_date = $this->input->post('registered_date');
+		if($registered_date == ''){
+			$registered_date = date('d/m/Y');
+		}
+
+		$registered_date = is_date_formatter($registered_date);
 		$data = array(
 			'customer_id' => $customer_id,
 			'registered_date' => $registered_date,

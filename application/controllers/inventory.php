@@ -7498,9 +7498,9 @@ class Inventory extends CI_Controller {
 		}
 
 		$data = array(
-			'content' =>'admin/inventory/penerimaan_barang',
+			'content' =>'admin/inventory/penerimaan_barang_by_admin',
 			'breadcrumb_title' => 'Inventory',
-			'breadcrumb_small' => 'Penerimaan Barang',
+			'breadcrumb_small' => 'Penerimaan Barang By Admin',
 			'nama_menu' => $menu[0],
 			'nama_submenu' => $menu[1],
 			'common_data'=> $this->data,
@@ -7508,10 +7508,47 @@ class Inventory extends CI_Controller {
 			'to' => $to );
 
 
+		$data['penerimaan_barang_unconfirmed'] = $this->inv_model->get_penerimaan_barang_unconfirmed(); 
 		$data['penerimaan_barang'] = $this->inv_model->get_penerimaan_barang($from, $to); 
 		
 		$this->load->view('admin/template',$data);
+		if(is_posisi_id() == 1){
+			$this->output->enable_profiler(TRUE);
+		}
 	}
 
+	function remove_penerimaan_barang(){
+
+		$json_data = file_get_contents('php://input');
+		if (isset($data['id'])) {
+			$id = $data['id'];
+			$this->common_model->db_free_query_superadmin("UPDATE nd_pembelian SET penerimaan_barang_id = null WHERE penerimaan_barang_id = $id");
+			$this->common_model->db_delete("nd_penerimaan_barang", 'id', $id);
+			echo json_encode(["status" => "success", "message" => "Penerimaan barang has been removed successfully."]);
+		} else {
+			echo json_encode(["status" => "error", "message" => "Invalid data received."]);
+		}
+		
+		/* $this->common_model->db_free_query_superadmin("UPDATE nd_pembelian SET penerimaan_barang_id = null WHERE penerimaan_barang_id = $id");
+		$this->common_model->db_delete("nd_penerimaan_barang",'id', $id);
+		echo json_encode(["status" => "success", "message" => "Penerimaan barang has been removed successfully."]); */
+	}
+
+	function update_status_penerimaan_barang(){
+		$id = $this->input->post('id');
+		$status_penerimaan = $this->input->post('status_penerimaan');
+
+		if($id == '' || $status_penerimaan == ''){
+			echo json_encode(["status" => "error", "message" => "Invalid data received."]);
+			return;
+		}
+		$data = array(
+			'penerimaan_barang_id' => $id,
+			'status_penerimaan' => $status_penerimaan
+			);
+		$this->common_model->db_insert("nd_penerimaan_barang_status", $data);
+		echo json_encode(["status" => "success", "message" => "Penerimaan barang has been removed successfully."]);
+
+	}
 
 }

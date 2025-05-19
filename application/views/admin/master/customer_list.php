@@ -26,6 +26,10 @@
     padding: 5px;
 }
 
+.inputSource li{
+    list-style: none;
+}
+
 .btn-save-source, .sourceDetailInput, .btn-cancel-source{
     display: none;
 }
@@ -1098,38 +1102,53 @@ jQuery(document).ready(function() {
             const registered = (source[0] == '-' ? '' : source[0]);
             const source_type = (source[1] == '-' ? '' : source[1]);
             const source_detail = (source[2] == '-' ? '' : source[2]);
-            const reg = (registered != '' ? registered.split('-').reverse().join('/') : '');
+            // const reg = (registered != '' ? registered.split('-').reverse().join('/') : '');
 
+            // <input type='text' class='registeredInput inputSource inputSource${id}' id="registerSource${id}" data-id="${id}" value='${reg}' />
+            // reg : <span id="register${id}" class='spanSource${id}'>${reg}</span> 
             const source_show = `
-                reg : <span id="register${id}" class='spanSource${id}'>${reg}</span> 
-                <input type='text' class='registeredInput inputSource inputSource${id}' id="registerSource${id}" data-id="${id}" value='${reg}' />
-                <br/>
-                sumber: 
-                <span id="sourceType${id}" class='spanSource${id}' >${source_type}</span>
-                <div class='input-group inputSource inputSource${id}' id="radioSource${id}" style='min-width: 120px;'>
-                    <label>
-                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='instagram'> Instagram</label>
-                    <label>
-                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='facebook'> Facebook</label>
-                    <label>
-                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='google'> Google</label>
-                    <label>
-                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='website'> Website</label>
-                    <label>
-                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='online-campaign'> Online Campaign</label>
-                    <label>
-                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='offline-campaign'> Offline Campaign</label>
-                    <label>
-                        <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='other' id="otherSource${id}"> Other: </label>
-                    <input type='text' class='sourceDetailInput inputSource' id='inputSourceDetail${id}' value='${source_detail}' />
-
-                </div>
+                sumber: <span id="sourceType${id}" class='spanSource${id}' >${source_type}</span>
+                <ul class='inputSource inputSource${id}' id="radioSource${id}" style='min-width: 150px; border:0px'>
+                    <li>
+                        <label>
+                            <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='instagram'> Instagram</label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='facebook'> Facebook</label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='google'> Google</label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='walk_in'> Walk In</label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='website'> Website</label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='online_campaign'> Online Campaign</label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='offline_campaign'> Offline Campaign</label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type='radio' class='radio-source' data-id="${id}" name='source_type' value='other' id="otherSource${id}"> Other: </label>
+                        <input type='text' class='sourceDetailInput inputSource' id='inputSourceDetail${id}' value='${source_detail}' placeholder="detail" />
+                    </li>
+                </ul>
                 <span ${source_detail == '-' ? 'hidden' : ''} class='spanSource${id}'>${source_detail}</span>`;
             let source_btn = '';
             let cancel_btn = '';
             let source_btn_save = '';
-            if(posisi_id != '6'){
-                source_btn = `<br/><button class='btn default btn-xs' id="btnShowSource${id}" onclick="showFormSource('${id}','${reg}','${source_type}','${source_detail}')">edit</button>`;
+            if(posisi_id <= '3'){
+                source_btn = `<br/><button class='btn default btn-xs' id="btnShowSource${id}" onclick="showFormSource('${id}','','${source_type}','${source_detail}')">edit</button>`;
                 cancel_btn = `<button class='btn red btn-xs btn-cancel-source' id="btnCancelSource${id}" onclick="cancelFormSource('${id}')">cancel</button>`;
                 source_btn_save = `<button class='btn green btn-xs btn-save-source' id="btnSaveSource${id}" onclick="saveFormSource('${id}')">save</button>`;
             }
@@ -1625,14 +1644,14 @@ function showFormSource(id, reg, source_type, source_detail) {
     $(`#btnShowSource${id}`).hide();
     $(".spanSource" + id).hide();
     $(`.inputSource${id}`).show();
-    $(`#registerSource${id}`).datepicker({
+    /* $(`#registerSource${id}`).datepicker({
         autoclose : true,
         format: "dd/mm/yyyy"
-    });
+    }); */
 
 
     if(reg == ''){
-        $(`#registerSource${id}`).val("<?=date('d/m/Y');?>");
+        // $(`#registerSource${id}`).val("<?=date('d/m/Y');?>");
     }
 
     if(source_type != ''){
@@ -1653,18 +1672,19 @@ function cancelFormSource(id) {
 
 function saveFormSource(id) {
     const source = $(`.inputSource${id} input[name=source_type]:checked`).val();
-    const registered = $(`#registerSource${id}`).val();
+    // const registered = $(`#registerSource${id}`).val();
     let source_detail = $(`#inputSourceDetail${id}`).val();
+    /* else if (registered == '') {
+        alert('Tanggal registrasi harus diisi!');
+        return false;
+    } */
 
 
     if (source == undefined) {
         bootbox.alert('Mohon pilih sumber');
         return false;
-    } else if (registered == '') {
-        alert('Tanggal registrasi harus diisi!');
-        return false;
-    } else if (source == 'other' && source_detail == undefined) {
-        bootbox.alert('Sumber lain harus diisi');
+    } else if (source == 'other' && (source_detail == undefined || source_detail == '')) {
+        bootbox.alert('Sumber detail harus diisi');
         return false;
     } else if(source != 'other'){
         source_detail = '';
@@ -1673,7 +1693,7 @@ function saveFormSource(id) {
     let dataSource = {};
     dataSource['customer_id'] = id;
     dataSource['source_type'] = source;
-    dataSource['registered_date'] = registered;
+    // dataSource['registered_date'] = registered;
     dataSource['source_detail'] = source_detail;
 
     const url = 'master/update_source_customer';
@@ -1681,7 +1701,7 @@ function saveFormSource(id) {
         const res = JSON.parse(data_respond);
         if (res.status) {
             notific8('lime','Data berhasil disimpan!');
-            location.reload();
+            //location.reload();
         } else {
             bootbox.alert('Gagal menyimpan data!');
         }

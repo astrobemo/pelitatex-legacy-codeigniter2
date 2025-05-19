@@ -1511,24 +1511,36 @@ class Transaction extends CI_Controller {
         $po_pembelian_batch_id = ($po_pembelian_batch_id == '' ? null : $po_pembelian_batch_id);
 
         $no_plat = $this->input->post('no_plat');
-        $jam_input = $this->input->post('jam_input');
+        $penerimaan_barang_id = null;
 
-        $data_mobil = array(
-            'no_plat' => $no_plat,
-            'jam_input' => $jam_input,
-            'user_id' => is_user_id()
-        );
+        if($no_plat != '' && $no_plat != 0){
 
-        $get_penerimaan = $this->common_model->db_select("nd_penerimaan_barang where no_plat ='$no_plat' AND jam_input='$jam_input'");
-
-        $penerimaan_barang_id = 0;
-        foreach($get_penerimaan as $row){
-            $penerimaan_barang_id = $row->id;
+            $tanggal_ex = explode('-', $this->input->post('tanggal_input'));
+            $tanggal_input = date('Y-m-d', strtotime($tanggal_ex[0]))." ".$tanggal_ex[1];
+    
+            $data_mobil = array(
+                'no_plat' => $no_plat,
+                'tanggal_input' => $tanggal_input,
+                'user_id' => is_user_id()
+            );
+    
+            $get_penerimaan = $this->common_model->db_select("nd_penerimaan_barang where no_plat ='$no_plat' AND tanggal_input='$tanggal_input'");
+    
+            $penerimaan_barang_id = 0;
+            foreach($get_penerimaan as $row){
+                $penerimaan_barang_id = $row->id;
+            }
+    
+            if($penerimaan_barang_id == 0){
+                $penerimaan_barang_id = $this->common_model->db_insert('nd_penerimaan_barang',$data_mobil);
+                $data_status = array(
+                    'penerimaan_barang_id' => $penerimaan_barang_id,
+                    'status_penerimaan' => 'MENUNGGU_DATA_GUDANG'
+                );
+                $this->common_model->db_insert('nd_penerimaan_barang_status',$data_status);
+            }
         }
-
-        if($penerimaan_barang_id == 0){
-            $penerimaan_barang_id = $this->common_model->db_insert('nd_penerimaan_barang',$data_mobil);
-        }
+        
 
 		
 		$data_pembelian = array(
@@ -1551,7 +1563,7 @@ class Transaction extends CI_Controller {
         // print_r($this->input->post());
 
 		$result_id = $this->common_model->db_insert('nd_pembelian',$data_pembelian);
-		redirect(is_setting_link('transaction/pembelian_list_detail').'/'.$result_id);
+		redirect(is_setting_link('transaction/pembelian_list_detail').'/'.$result_id); 
 
 	}
 
@@ -1559,17 +1571,50 @@ class Transaction extends CI_Controller {
 
 		$ini = $this->input;
 		$pembelian_id = $ini->post('pembelian_id');
+
+        $no_plat = $this->input->post('no_plat');
+        $penerimaan_barang_id = null;
+
+        if($no_plat != '' && $no_plat != 0){
+            $tanggal_ex = explode('-', $this->input->post('tanggal_input'));
+            $tanggal_input = date('Y-m-d', strtotime($tanggal_ex[0]))." ".$tanggal_ex[1];
+    
+            $data_mobil = array(
+                'no_plat' => $no_plat,
+                'tanggal_input' => $tanggal_input,
+                'user_id' => is_user_id()
+            );
+    
+            $get_penerimaan = $this->common_model->db_select("nd_penerimaan_barang where no_plat ='$no_plat' AND tanggal_input='$tanggal_input'");
+    
+            $penerimaan_barang_id = 0;
+            foreach($get_penerimaan as $row){
+                $penerimaan_barang_id = $row->id;
+            }
+
+            if($penerimaan_barang_id == 0){
+                $penerimaan_barang_id = $this->common_model->db_insert('nd_penerimaan_barang',$data_mobil);
+            }
+        }
+        
+
+
 		$data = array(
 			'no_faktur' => $ini->post('no_faktur') ,
             'ockh_info' => $ini->post('ockh_info') ,
 			'gudang_id'=>$ini->post('gudang_id'),
 			'tanggal'=>is_date_formatter($ini->post('tanggal')),
             'jatuh_tempo' => is_date_formatter($ini->post('tanggal')),
+            'penerimaan_barang_id' => $penerimaan_barang_id,
 			'toko_id'=>$ini->post('toko_id'),
 			'supplier_id' => $ini->post('supplier_id'),
             'po_pembelian_batch_id' => ($ini->post('po_pembelian_batch_id') == '' ? null : $ini->post('po_pembelian_batch_id')),
             'user_id' => is_user_id()
             );
+
+        
+
+        
 
 		$this->common_model->db_update('nd_pembelian',$data,'id', $pembelian_id);
 

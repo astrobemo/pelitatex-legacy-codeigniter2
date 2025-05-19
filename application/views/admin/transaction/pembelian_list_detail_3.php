@@ -26,6 +26,21 @@
 	text-align: center;
 }
 
+.plat-history{
+	background-color: #eee;
+	display: none;
+	padding:5px;
+}
+
+.plat-history ul li{
+	padding: 5px;
+	cursor: pointer;
+}
+
+.plat-history ul li:hover{
+	font-weight: bold;
+}
+
 </style>
 <div class="page-content">
 	<div class='container'>
@@ -53,7 +68,7 @@
 			$po_pembelian_batch_id = '';
 			$po_number = '';
 			$no_plat = '';
-			$jam_input = '';
+			$tanggal_input = '';
 
 			foreach ($pembelian_data as $row) {
 				$pembelian_id = $row->id;
@@ -81,7 +96,7 @@
 				$ockh_info = $row->ockh_info;
 
 				$no_plat = $row->no_plat;
-				$jam_input = $row->jam_input;
+				$tanggal_input = $row->tanggal_input;
 
 			}
 
@@ -107,6 +122,12 @@
 			$ockh = $ockh_info;
 			foreach ($pembelian_detail as $row) {
 				$ockh = $row->ockh;
+			}
+
+			$tShow = '';
+			if($tanggal_input != ''){
+				$tgl_input = explode(" ", $tanggal_input);
+				$tShow = date('d F Y', strtotime($tgl_input[0]))." - ".$tgl_input[1];
 			}
 
 		?>
@@ -152,33 +173,6 @@
 			                    </div>
 			                </div>
 
-							<div class="form-group">
-			                    <label class="control-label col-md-3">No Plat<span class="required">
-			                    * </span>
-			                    </label>
-			                    <div class="col-md-6">
-									<datalist id="suggestion-list" onclick="getNoPlat()">
-										<?php foreach ($penerimaan_barang_before as $row): ?>
-											<option value="<?=$row->no_plat; ?>" data-jam="<?=$row->jam_input?>" ><?=($row->no_plat).'-'.($row->jam_input); ?></option>
-										<?php endforeach; ?>
-									</datalist>
-									<input type="text" class="form-control" name="no_plat" list="suggestion-list">
-			                    </div>
-			                </div>
-
-							<div class="form-group">
-			                    <label class="control-label col-md-3">Jam Input<span class="required">
-			                    * </span>
-			                    </label>
-			                    <div class="col-md-6">
-									<div class="input-group">
-										<input type="text" class="form-control timepicker timepicker-24" name='jam_input' id="jam-input-add">
-										<span class="help-inline">
-										<b style='color:red'>samakan</b> jam input tiap mobil (per kedatangan)</span>
-									</div>
-			                    </div>
-			                </div>
-
 			                <div class="form-group">
 			                    <label class="control-label col-md-3">Gudang<span class="required">
 			                    * </span>
@@ -198,7 +192,7 @@
 			                </div> 
 
 			                <div class="form-group">
-			                    <label class="control-label col-md-3">No Faktur<span class="required">
+			                    <label class="control-label col-md-3">No Faktur/Surat Jalan<span class="required">
 			                    * </span>
 			                    </label>
 			                    <div class="col-md-6">
@@ -207,7 +201,7 @@
 			                </div>
 
 			                <div class="form-group">
-			                    <label class="control-label col-md-3">Tanggal<span class="required">
+			                    <label class="control-label col-md-3">Tanggal Surat Jalan<span class="required">
 			                    * </span>
 			                    </label>
 			                    <div class="col-md-6">
@@ -224,6 +218,44 @@
 			                    	<small class='po-info' style="display:none">PO link: <b><span class='po-link-number' style="color:red" ></span></b></small>
 			                    </div>
 			                </div> 	
+
+							<div class="alert alert-info">
+								<strong>No Plat + Tanggal Input</strong>
+								<br/>Untuk surat jalan dengan nomor plat mobil yang sama pada satu kedatangan, isilah tanggal dan jam penerimaan dengan data yang sama.
+							</div>
+
+							<div class="form-group">
+			                    <label class="control-label col-md-3">No Plat<span class="required">
+			                    * </span>
+			                    </label>
+			                    <div class="col-md-6">
+									<input autocomplete="off" type="text" class="form-control" name="no_plat" id="no-plat-add" onfocus="showHistory('add')" onfocusout="hideHistory('add')">
+									<div id="plat-history-add" class="plat-history">
+										<b>pilih dari history : </b>
+										<ul>
+											<?php foreach ($penerimaan_barang_before as $row){
+												$tgl_input_1 = explode(" ", $row->tanggal_input);
+												$tInputShow = date('d F Y', strtotime($tgl_input_1[0]))." - ".$tgl_input_1[1];?>
+												<li data-id="<?=$row->id?>" onclick="choosePlat('add','<?=$row->no_plat?>','<?=$tInputShow?>')" ><?=($row->no_plat).'-'.($tInputShow); ?></option>
+											<?php }; ?>
+										</ul>
+									</div>
+			                    </div>
+			                </div>
+
+							<div class="form-group">
+			                    <label class="control-label col-md-3">Waktu Penerimaan<span class="required">
+			                    * </span>
+			                    </label>
+			                    <div class="col-md-6">
+									<div class="input-group date form_datetime">
+										<input type="text" size="16" class="form-control" name='tanggal_input' id="tanggal-input-add">
+										<span class="input-group-btn">
+										<button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+										</span>
+									</div>
+			                    </div>
+			                </div>
 
 			                <div class="form-group" hidden>
 			                    <label class="control-label col-md-3">Toko
@@ -256,6 +288,21 @@
 						<form action="<?=base_url('transaction/pembelian_list_update')?>" class="form-horizontal" id="form_edit_data" method="post">
 							<h3 class='block'> Edit Data</h3>
 							
+							<div class="form-group">
+			                    <label class="control-label col-md-3">PO
+			                    </label>
+			                    <div class="col-md-6">
+			                		<select name='po_pembelian_batch_id' class='form-control' id="po_list_edit" onchange="checkSupplier()">
+			                			<option value=''>Pilih</option>
+			                			<?foreach ($this->po_pembelian_batch_aktif as $row) {
+			                				$letter = '';
+			                				?>
+			                				<option <?=($po_pembelian_batch_id == $row->id ? 'selected' : '');?> value="<?=$row->id?>"><?=$row->po_number?> <?=$letter;?></option>
+			                			<?}?>
+			                		</select>
+			                    </div>
+			                </div>
+
 							<div class="form-group">
 			                    <label class="control-label col-md-3">Supplier<span class="required">
 			                    * </span>
@@ -293,26 +340,11 @@
 			                </div> 
 
 			                <div class="form-group">
-			                    <label class="control-label col-md-3">Tanggal<span class="required">
+			                    <label class="control-label col-md-3">Tanggal Surat Jalan<span class="required">
 			                    * </span>
 			                    </label>
 			                    <div class="col-md-6">
 					                <input type="text" readonly class="form-control date-picker" value="<?=$tanggal;?>" name="tanggal"/>
-			                    </div>
-			                </div>
-
-							<div class="form-group">
-			                    <label class="control-label col-md-3">PO Pembelian
-			                    </label>
-			                    <div class="col-md-6">
-			                		<select name='po_pembelian_batch_id' class='form-control' id="po_list_edit" onchange="checkSupplier()">
-			                			<option value=''>Pilih</option>
-			                			<?foreach ($this->po_pembelian_batch_aktif as $row) {
-			                				$letter = '';
-			                				?>
-			                				<option <?=($po_pembelian_batch_id == $row->id ? 'selected' : '');?> value="<?=$row->id?>"><?=$row->po_number?> <?=$letter;?></option>
-			                			<?}?>
-			                		</select>
 			                    </div>
 			                </div>
 
@@ -321,6 +353,45 @@
 			                    </label>
 			                    <div class="col-md-6">
 			                		<input type="text" class='form-control' name="ockh_info" value="<?=$ockh_info?>" id="ockh_edit" />
+			                    </div>
+			                </div>
+
+							<div class="alert alert-info">
+								<strong>No Plat + Tanggal Input</strong>
+								<br/>Untuk surat jalan dengan nomor plat mobil yang sama pada satu kedatangan, isilah tanggal dan jam penerimaan dengan data yang sama.
+							</div>
+
+							<div class="form-group">
+			                    <label class="control-label col-md-3">No Plat<span class="required">
+			                    * </span>
+			                    </label>
+			                    <div class="col-md-6">
+									<input type="text" class="form-control" name="no_plat" id="no-plat-edit" onfocus="showHistory('edit')" onfocusout="hideHistory('edit')" value="<?=$no_plat;?>" >
+									<div id="plat-history-edit" class="plat-history">
+										<b>pilih dari history : </b>
+										<ul>
+											<?php foreach ($penerimaan_barang_before as $row){
+												$tgl_input_1 = explode(" ", $row->tanggal_input);
+												$tInputShow = date('d F Y', strtotime($tgl_input_1[0]))." - ".$tgl_input_1[1];?>
+												<li data-id="<?=$row->id?>" onclick="choosePlat('edit','<?=$row->no_plat?>','<?=$tInputShow?>')" ><?=($row->no_plat).'-'.($tInputShow); ?></option>
+											<?php }; ?>
+										</ul>
+									</div>
+			                    </div>
+			                </div>
+
+							<div class="form-group">
+			                    <label class="control-label col-md-3">Waktu Penerimaan<span class="required">
+			                    * </span>
+			                    </label>
+			                    <div class="col-md-6">
+									<div class="input-group date form_datetime" data-date="<?=$tanggal_input;?>">
+										<input type="text" size="16" class="form-control" name='tanggal_input' id="tanggal-input-edit" value="<?=$tShow;?>">
+										<span class="input-group-btn">
+											<button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+										</span>
+									</div>
+									<div class='alert alert-info'>Untuk mengisi manual klik 1x lagi kotak isian</div>
 			                    </div>
 			                </div>
 
@@ -623,7 +694,7 @@
 								    		<td>No Plat</td>
 								    		<td class='padding-rl-5'> : </td>
 								    		<td  class='td-isi-bold'>
-								    			<?=$no_plat;?> - <?=$jam_input?>
+								    			<?=$no_plat;?>  <?=$tShow?> 
 											</td>
 								    	</tr>
 								    	<tr hidden>
@@ -954,19 +1025,15 @@ jQuery(document).ready(function() {
 		showSeconds: false,
 		showMeridian: false
 	});
-	
 
-	$(document).on('change', 'input', function() {
-		const options = $('datalist')[0].options;
-		const val = $(this).val();
-		for (var i = 0; i < options.length; i++) {
-			if (options[i].value === val) {
-				const jam = options[i].getAttribute('data-jam');
-				$("#jam-input-add").val(jam)
-				break;
-			}
-		}
+	$(".form_datetime").datetimepicker({
+		autoclose: true,
+		isRTL: Metronic.isRTL(),
+		todayBtn: true,
+		format: "dd MM yyyy - hh:ii",
+		pickerPosition: (Metronic.isRTL() ? "bottom-right" : "bottom-left")
 	});
+	
 
 	$('#barang_id_select,#warna_id_select, #po_list, #po_list_edit').select2({
         allowClear: true
@@ -1449,6 +1516,20 @@ jQuery(document).ready(function() {
     });
 
 });
+
+function showHistory(action){
+	$(`#plat-history-${action}`).show();
+}
+
+function hideHistory(action){
+	$(`#plat-history-${action}`).hide('1000');
+}
+
+function choosePlat(action,no_plat,tanggalInput){
+	$(`#no-plat-${action}`).val(no_plat);
+	$(`#tanggal-input-${action}`).val(tanggalInput);
+	hideHistory(action);
+}
 
 function check_form(){
 	data_result = table_qty_update('#qty-table').split('=*=');

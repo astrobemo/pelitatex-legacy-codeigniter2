@@ -2877,7 +2877,7 @@ class Common_Model extends CI_Model
 	function get_penerimaan_barang_suggestion()
 	{
 		$tanggal = date('Y-m-d', strtotime('-1 day'));
-		$query = $this->db->query("SELECT no_plat, jam_input, supplier_id, t3.nama as nama_supplier
+		$query = $this->db->query("SELECT t1.id as id, no_plat, tanggal_input, supplier_id, t3.nama as nama_supplier
 				FROM (
 					SELECT *
 					FROM nd_penerimaan_barang

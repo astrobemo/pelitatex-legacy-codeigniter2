@@ -941,7 +941,7 @@ class Transaction_Model extends CI_Model {
 
 	function get_data_pembelian($id){
 		$query = $this->db->query("SELECT tbl_a.*, tbl_b.nama as nama_supplier, tbl_c.nama as nama_gudang, 
-		tbl_d.nama as nama_toko, tbl_b.telepon as telepon_supplier, LPAD(no_nota,4,'0') as no_nota_p, po_number, no_plat, jam_input
+		tbl_d.nama as nama_toko, tbl_b.telepon as telepon_supplier, LPAD(no_nota,4,'0') as no_nota_p, po_number, no_plat, tanggal_input
 			FROM (
 				SELECT *
 				FROM nd_pembelian
@@ -966,7 +966,7 @@ class Transaction_Model extends CI_Model {
 				)tbl_e
 			ON tbl_a.po_pembelian_batch_id = tbl_e.id
 			LEFT JOIN (
-				SELECT no_plat, jam_input, id as penerimaan_barang_id
+				SELECT no_plat, tanggal_input, id as penerimaan_barang_id
 				FROM nd_penerimaan_barang
 			)tbl_f
 			ON tbl_a.penerimaan_barang_id = tbl_f.penerimaan_barang_id
