@@ -219,11 +219,6 @@
 			                    </div>
 			                </div> 	
 
-							<div class="alert alert-info">
-								<strong>No Plat + Tanggal Input</strong>
-								<br/>Untuk surat jalan dengan nomor plat mobil yang sama pada satu kedatangan, isilah tanggal dan jam penerimaan dengan data yang sama.
-							</div>
-
 							<div class="form-group">
 			                    <label class="control-label col-md-3">No Plat<span class="required">
 			                    * </span>
@@ -239,20 +234,6 @@
 												<li data-id="<?=$row->id?>" onclick="choosePlat('add','<?=$row->no_plat?>','<?=$tInputShow?>')" ><?=($row->no_plat).'-'.($tInputShow); ?></option>
 											<?php }; ?>
 										</ul>
-									</div>
-			                    </div>
-			                </div>
-
-							<div class="form-group">
-			                    <label class="control-label col-md-3">Waktu Penerimaan<span class="required">
-			                    * </span>
-			                    </label>
-			                    <div class="col-md-6">
-									<div class="input-group date form_datetime">
-										<input type="text" size="16" class="form-control" name='tanggal_input' id="tanggal-input-add">
-										<span class="input-group-btn">
-										<button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
-										</span>
 									</div>
 			                    </div>
 			                </div>
@@ -1019,21 +1000,6 @@ jQuery(document).ready(function() {
 	FormEditPembelian.init();
 	FormNewPembelianDetail.init();
 
-	$('.timepicker-24').timepicker({
-		autoclose: true,
-		minuteStep: 5,
-		showSeconds: false,
-		showMeridian: false
-	});
-
-	$(".form_datetime").datetimepicker({
-		autoclose: true,
-		isRTL: Metronic.isRTL(),
-		todayBtn: true,
-		format: "dd MM yyyy - hh:ii",
-		pickerPosition: (Metronic.isRTL() ? "bottom-right" : "bottom-left")
-	});
-	
 
 	$('#barang_id_select,#warna_id_select, #po_list, #po_list_edit').select2({
         allowClear: true
@@ -1516,20 +1482,6 @@ jQuery(document).ready(function() {
     });
 
 });
-
-function showHistory(action){
-	$(`#plat-history-${action}`).show();
-}
-
-function hideHistory(action){
-	$(`#plat-history-${action}`).hide('1000');
-}
-
-function choosePlat(action,no_plat,tanggalInput){
-	$(`#no-plat-${action}`).val(no_plat);
-	$(`#tanggal-input-${action}`).val(tanggalInput);
-	hideHistory(action);
-}
 
 function check_form(){
 	data_result = table_qty_update('#qty-table').split('=*=');

@@ -1509,38 +1509,7 @@ class Transaction extends CI_Controller {
         }
 
         $po_pembelian_batch_id = ($po_pembelian_batch_id == '' ? null : $po_pembelian_batch_id);
-
-        $no_plat = $this->input->post('no_plat');
-        $penerimaan_barang_id = null;
-
-        if($no_plat != '' && $no_plat != 0){
-
-            $tanggal_ex = explode('-', $this->input->post('tanggal_input'));
-            $tanggal_input = date('Y-m-d', strtotime($tanggal_ex[0]))." ".$tanggal_ex[1];
-    
-            $data_mobil = array(
-                'no_plat' => $no_plat,
-                'tanggal_input' => $tanggal_input,
-                'user_id' => is_user_id()
-            );
-    
-            $get_penerimaan = $this->common_model->db_select("nd_penerimaan_barang where no_plat ='$no_plat' AND tanggal_input='$tanggal_input'");
-    
-            $penerimaan_barang_id = 0;
-            foreach($get_penerimaan as $row){
-                $penerimaan_barang_id = $row->id;
-            }
-    
-            if($penerimaan_barang_id == 0){
-                $penerimaan_barang_id = $this->common_model->db_insert('nd_penerimaan_barang',$data_mobil);
-                $data_status = array(
-                    'penerimaan_barang_id' => $penerimaan_barang_id,
-                    'status_penerimaan' => 'MENUNGGU_DATA_GUDANG'
-                );
-                $this->common_model->db_insert('nd_penerimaan_barang_status',$data_status);
-            }
-        }
-        
+        $penerimaan_barang_id = $this->input->post('penerimaan_barang_id');        
 
 		
 		$data_pembelian = array(
@@ -1573,30 +1542,7 @@ class Transaction extends CI_Controller {
 		$pembelian_id = $ini->post('pembelian_id');
 
         $no_plat = $this->input->post('no_plat');
-        $penerimaan_barang_id = null;
-
-        if($no_plat != '' && $no_plat != 0){
-            $tanggal_ex = explode('-', $this->input->post('tanggal_input'));
-            $tanggal_input = date('Y-m-d', strtotime($tanggal_ex[0]))." ".$tanggal_ex[1];
-    
-            $data_mobil = array(
-                'no_plat' => $no_plat,
-                'tanggal_input' => $tanggal_input,
-                'user_id' => is_user_id()
-            );
-    
-            $get_penerimaan = $this->common_model->db_select("nd_penerimaan_barang where no_plat ='$no_plat' AND tanggal_input='$tanggal_input'");
-    
-            $penerimaan_barang_id = 0;
-            foreach($get_penerimaan as $row){
-                $penerimaan_barang_id = $row->id;
-            }
-
-            if($penerimaan_barang_id == 0){
-                $penerimaan_barang_id = $this->common_model->db_insert('nd_penerimaan_barang',$data_mobil);
-            }
-        }
-        
+        $penerimaan_barang_id = $this->input->post('penerimaan_barang_id');    
 
 
 		$data = array(

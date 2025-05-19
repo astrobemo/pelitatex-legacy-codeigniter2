@@ -2876,22 +2876,21 @@ class Common_Model extends CI_Model
 
 	function get_penerimaan_barang_suggestion()
 	{
-		$tanggal = date('Y-m-d', strtotime('-1 day'));
-		$query = $this->db->query("SELECT t1.id as id, no_plat, tanggal_input, supplier_id, t3.nama as nama_supplier
+		$query = $this->db->query("SELECT t1.id as id, no_plat, tanggal_input
 				FROM (
 					SELECT *
 					FROM nd_penerimaan_barang
 					)t1
 				LEFT JOIN (
-					SELECT tanggal, penerimaan_barang_id, supplier_id, id as pembelian_id
-					FROM nd_pembelian
-					WHERE tanggal >= '$tanggal'
-					AND status_aktif = 1
-					GROUP BY penerimaan_barang_id
+					SELECT penerimaan_barang_id, status_penerimaan 
+					FROM nd_penerimaan_barang_status
+					WHERE id IN (
+						SELECT max(id)
+						FROM nd_penerimaan_barang_status
 					) t2
 				ON t1.id = t2.penerimaan_barang_id
-				LEFT JOIN nd_supplier t3
-				ON t2.supplier_id = t3.id
+				WHERE status_penerimaan != 'SUDAH_KONFIRMASI'
+				
 		");
 		return $query->result();
 	}

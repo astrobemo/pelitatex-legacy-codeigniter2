@@ -7493,7 +7493,7 @@ class Inventory extends CI_Controller {
 			$from = is_date_formatter($this->input->get('from'));
 			$to = is_date_formatter($this->input->get('to'));
 		}else{
-			$from = date("Y-m-d", strtotime('-1 day')); 
+			$from = date("Y-m-d", strtotime('-30 day')); 
 			$to = date("Y-m-d");
 		}
 
@@ -7515,6 +7515,39 @@ class Inventory extends CI_Controller {
 		if(is_posisi_id() == 1){
 			$this->output->enable_profiler(TRUE);
 		}
+	}
+
+	function penerimaan_barang_insert(){
+		$no_plat = $this->input->post('no_plat');
+		$tanggal_input = $this->input->post('tanggal_input');
+
+		if($no_plat == '' || $tanggal_input == ''){
+			echo "Invalid data received.";
+			return;
+		}
+
+		$tanggal_ex = explode('-', $this->input->post('tanggal_input'));
+		$tanggal_input = date('Y-m-d', strtotime($tanggal_ex[0]))." ".$tanggal_ex[1].":00:00";
+
+		$data_mobil = array(
+			'no_plat' => $no_plat,
+			'tanggal_input' => $tanggal_input,
+			'user_id' => is_user_id()
+		);
+
+		
+		$penerimaan_barang_id = $this->common_model->db_insert("nd_penerimaan_barang", $data_mobil);
+		if($penerimaan_barang_id){
+			$data_status = array(
+				'penerimaan_barang_id' => $penerimaan_barang_id,
+				'status_penerimaan' => "MENUNGGU_DATA_GUDANG",
+			);
+			$this->common_model->db_insert("nd_penerimaan_barang_status", $data_status);
+		}
+		
+
+		redirect(is_setting_link('inventory/penerimaan_barang'));
+		
 	}
 
 	function remove_penerimaan_barang(){

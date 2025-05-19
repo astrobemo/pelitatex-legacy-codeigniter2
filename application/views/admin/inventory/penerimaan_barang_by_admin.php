@@ -5,7 +5,64 @@
 <div class="page-content">
 	<div class='container'>
 
-	
+
+		<div class="modal fade" id="portlet-config" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-body">
+						<form action="<?=base_url('inventory/penerimaan_barang_insert')?>" class="form-horizontal" id="form_add_data" method="post">
+							<h3 class='block'> Penerimaan Baru</h3>
+
+							<div class="alert alert-info">
+								<strong>No Plat + Tanggal Input Diisi per amplop</strong>
+							</div>
+
+							<div class="form-group">
+			                    <label class="control-label col-md-3">No Plat<span class="required">
+			                    * </span>
+			                    </label>
+			                    <div class="col-md-6">
+									<input autocomplete="off" type="text" class="form-control" name="no_plat" id="no-plat-add" >
+			                    </div>
+			                </div>
+
+							<div class="form-group">
+			                    <label class="control-label col-md-3">Tanggal Penerimaan<span class="required">* </span>
+			                    </label>
+			                    <div class="col-md-6">
+									<div class="input-group date form_datetime">
+										<input readonly autocomplete="off" type="text" size="16" class="form-control" name='tanggal_input' id="tanggal-input-add">
+										<span class="input-group-btn">
+										<button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+										</span>
+									</div>
+			                    </div>
+			                </div>
+
+			                <div class="form-group" hidden>
+			                    <label class="control-label col-md-3">Toko
+			                    </label>
+			                    <div class="col-md-6">
+					                <select name="toko_id" class='form-control'>
+			                    		<?foreach ($this->toko_list_aktif as $row) { ?>
+			                    			<option selected value="<?=$row->id?>"><?=$row->nama;?></option>
+			                    		<? } ?>
+			                    	</select> 
+			                    </div>
+			                </div>
+						</form>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" class="btn blue btn-active btn-trigger btn-save" onclick="submitFormAdd()">Save</button>
+						<button type="button" class="btn default  btn-active" data-dismiss="modal">Close</button>
+					</div>
+				</div>
+				<!-- /.modal-content -->
+			</div>
+			<!-- /.modal-dialog -->
+		</div>
+
 		<div class="row margin-top-10">
 			<div class="col-md-12">
 				<div class="portlet light">
@@ -14,19 +71,23 @@
 							<i class="icon-bar-chart theme-font hide"></i>
 							<span class="caption-subject theme-font bold uppercase"><?=$breadcrumb_small;?> <span style="color:red">ON PROGRESS</span> </span>
 						</div>
+						<div class="actions">
+							<a href="#portlet-config" data-toggle='modal' class="btn btn-primary btn-sm btn-form-add">
+								<i class="fa fa-plus"></i> Penerimaan Baru </a>
+						</div>
 					</div>
 					<div class="portlet-body">
 						<table class="table table-hover table-striped table-bordered" id="general_table_uncofirmed">
 							<thead>
 								<tr>
 									<th scope="col">
-										Tanggal
+										Tanggal Penerimaan
 									</th>
 									<th scope="col">
 										No Plat
 									</th>
 									<th scope="col">
-										Jam
+										Tanggal Surat Jalan
 									</th>
 									<th scope="col">
 										Barang List
@@ -48,13 +109,13 @@
 									?>
 									<tr>
 										<td>
-											<?=is_reverse_date($row->tanggal);?>
+											<?=$row->tanggal_input;?>
 										</td>
 										<td>
 											<?=$row->no_plat;?>
 										</td>
 										<td>
-											<?=$row->tanggal_input;?>
+											<?=is_reverse_date($row->tanggal);?>
 										</td>
 										<td>
 											<?if($nama_barang[0] != ''){?>
@@ -114,13 +175,13 @@
 							<thead>
 								<tr>
 									<th scope="col">
-										Tanggal
+										Tanggal Penerimaan
 									</th>
 									<th scope="col">
 										No Plat
 									</th>
 									<th scope="col">
-										Jam
+										Tanggal Surat Jalan
 									</th>
 									<th scope="col">
 										Barang List
@@ -136,16 +197,19 @@
 									$nama_warna = explode("??", $row->nama_warna);
 									$qty_data = explode("??", $row->qty_data);
 									$jumlah_roll_data = explode("??", $row->jumlah_roll_data);
+									$tanggal_sj = explode(",", $row->tanggal);
 									?>
 									<tr>
 										<td>
-											<?=is_reverse_date($row->tanggal);?>
+											<?=$row->tanggal_input;?>
 										</td>
 										<td>
 											<?=$row->no_plat;?>
 										</td>
 										<td>
-											<?=$row->tanggal_input;?>
+											<?foreach($tanggal_sj as $key => $value){
+												echo is_reverse_date($value);
+											} ?>
 										</td>
 										<td>
 											<?if($nama_barang[0] != ''){?>
@@ -186,15 +250,28 @@ jQuery(document).ready(function() {
 	// oTable.state.clear();
 	// oTable.destroy();
 
-	$('.btn-save').click(function(){
-		if ($('#form_add_data [name=tanggal]').val() != '' && $('#form_add_data [name=amount]').val() != '' ) {
-			$('#form_add_data').submit();
-		}else{
-			alert('Tanggal dan Jumlah harus diisi');
-		}
-	});
 
+	$(".form_datetime").datetimepicker({
+		autoclose: true,
+		isRTL: true,
+		todayBtn: true,
+		format: "dd MM yyyy - hh",
+		minView: 1,
+		pickerPosition: (Metronic.isRTL() ? "bottom-right" : "bottom-left")
+	});
 });
+
+function submitFormAdd(){
+	const form = $('#form_add_data');
+	const noPlat = form.find('#no-plat-add').val();
+	const tanggalInput = form.find('#tanggal-input-add').val();
+	if(noPlat == '' || tanggalInput == '' || noPlat.length < 5){
+		bootbox.alert('No Plat dan Tanggal Input harus diisi');
+		return;
+	}
+	$('#form_add_data').submit();
+	$(`#portlet-config`).modal('toggle');
+}
 
 function removePenerimaan(id, no_faktur){
 	const nFaktur = (no_faktur == '' ? "" : "(surat jalan yang terkoneksi : "+no_faktur+")" );

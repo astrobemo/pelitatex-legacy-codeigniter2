@@ -11348,7 +11348,7 @@ class Inventory_Model extends CI_Model {
 				AND tanggal_input <= '$to 23:59:59'
 			)t1
 			LEFT JOIN (
-				SELECT penerimaan_barang_id, tanggal, group_concat(no_faktur) as no_faktur,
+				SELECT penerimaan_barang_id, group_concat(distinct tanggal) as tanggal, group_concat(no_faktur) as no_faktur,
 				(nama_jual) as nama_barang, 
 				(warna_jual) as nama_warna, 
 				sum(qty) as qty, sum(jumlah_roll) as jumlah_roll
@@ -11411,7 +11411,7 @@ class Inventory_Model extends CI_Model {
 				ON t3.penerimaan_barang_id = t1.id
 			)t1
 			LEFT JOIN (
-				SELECT penerimaan_barang_id, tanggal, group_concat(no_faktur) as no_faktur,
+				SELECT penerimaan_barang_id, group_concat(distinct tanggal) as tanggal, group_concat(no_faktur) as no_faktur,
 				(nama_jual) as nama_barang, 
 				(warna_jual) as nama_warna, 
 				sum(qty) as qty, sum(jumlah_roll) as jumlah_roll
