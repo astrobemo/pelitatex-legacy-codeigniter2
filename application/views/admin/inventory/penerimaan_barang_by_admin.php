@@ -277,24 +277,18 @@ function removePenerimaan(id, no_faktur){
 	const nFaktur = (no_faktur == '' ? "" : "(surat jalan yang terkoneksi : "+no_faktur+")" );
 	bootbox.confirm(`Yakin menghapus penerimaan ini ${nFaktur}? <br>data tidak dapat dikembalikan `, function(respond){
 		if(respond){
-
-			fetch(`<?php echo base_url('inventory/remove_penerimaan_barang'); ?>`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({id:id})
-			})
-
+			
 			$.ajax({
 				type: "POST",
 				url: "<?php echo base_url('inventory/remove_penerimaan_barang'); ?>",
 				data: {id:id},
 				success: function(data){
-					console.log(data);
-					if(JSON.parse(data).status == 'success'){
+					const res = JSON.parse(data);
+					if(res.status == 'success'){
 						notific8("lime","Sukses, halaman akan di refresh", 3000);
 						location.reload();
+					}else if(res.status){
+						notific8("red","Gagal menghapus penerimaan barang, sudah ada barang yang di register", 3000);
 					}else{
 						alert('Gagal menghapus penerimaan barang');
 					}

@@ -7555,9 +7555,26 @@ class Inventory extends CI_Controller {
 		$json_data = file_get_contents('php://input');
 		if (isset($data['id'])) {
 			$id = $data['id'];
-			$this->common_model->db_free_query_superadmin("UPDATE nd_pembelian SET penerimaan_barang_id = null WHERE penerimaan_barang_id = $id");
-			$this->common_model->db_delete("nd_penerimaan_barang", 'id', $id);
-			echo json_encode(["status" => "success", "message" => "Penerimaan barang has been removed successfully."]);
+			
+			$res = $this->common_model->db_free_query_superadmin("SELECT count(barang_id) as total_barang 
+				FROM nd_pembelian tA
+				LEFT JOIN nd_pembelian_detail tB ON tA.id = tB.pembelian_id
+				WHERE tA.penerimaan_barang_id = $id");
+
+			$total_barang = 0;
+			foreach($res as $row){
+				$total_barang = $row->total_barang;
+			}
+
+			if($total_barang > 0){
+				echo json_encode(["status" => "reject", "message" => "Penerimaan barang cannot be removed because it has items registered."]);
+				return;
+			}else{
+				$this->common_model->db_free_query_superadmin("UPDATE nd_pembelian SET penerimaan_barang_id = null WHERE penerimaan_barang_id = $id");
+				$this->common_model->db_delete("nd_penerimaan_barang", 'id', $id);
+				echo json_encode(["status" => "success", "message" => "Penerimaan barang has been removed successfully."]);
+			}
+
 		} else {
 			echo json_encode(["status" => "error", "message" => "Invalid data received."]);
 		}
