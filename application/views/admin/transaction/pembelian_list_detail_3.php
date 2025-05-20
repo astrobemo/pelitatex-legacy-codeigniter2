@@ -219,22 +219,28 @@
 			                    </div>
 			                </div> 	
 
+							<div class="alert alert-info">
+								<strong>Penerimaan Barang</strong>
+							</div>
+
 							<div class="form-group">
-			                    <label class="control-label col-md-3">No Plat<span class="required">
+			                    <label class="control-label col-md-3">No Mobil<span class="required">
 			                    * </span>
 			                    </label>
 			                    <div class="col-md-6">
-									<input autocomplete="off" type="text" class="form-control" name="no_plat" id="no-plat-add" onfocus="showHistory('add')" onfocusout="hideHistory('add')">
-									<div id="plat-history-add" class="plat-history">
-										<b>pilih dari history : </b>
-										<ul>
-											<?php foreach ($penerimaan_barang_before as $row){
-												$tgl_input_1 = explode(" ", $row->tanggal_input);
-												$tInputShow = date('d F Y', strtotime($tgl_input_1[0]))." - ".$tgl_input_1[1];?>
-												<li data-id="<?=$row->id?>" onclick="choosePlat('add','<?=$row->no_plat?>','<?=$tInputShow?>')" ><?=($row->no_plat).'-'.($tInputShow); ?></option>
-											<?php }; ?>
-										</ul>
+									<div class="input-group">
+										<select name="penerimaan_barang_id" id="penerimaan-barang-add" class="form-control">
+											<option value="">Pilih</option>
+												<?php foreach ($penerimaan_barang_before as $row){?>
+													<option value="<?=$row->id?>"><?=$row->no_plat?> - <?=date('d/m/Y H:i', strtotime($row->tanggal_input));?></option>
+												<?php }; ?>
+										</select>
+										<span class="input-group-btn">
+											<button class="btn default" type="button" onclick="refreshPenerimaan('add')" title="refresh data penerimaan"><i class="fa fa-refresh"></i></button>
+											<a href="<?=base_url().is_setting_link('inventory/penerimaan_barang')?>" class="btn default" target="_blank" title="tambah data penerimaan"><i class="fa fa-plus"></i></a>
+										</span>
 									</div>
+								
 			                    </div>
 			                </div>
 
@@ -338,44 +344,29 @@
 			                </div>
 
 							<div class="alert alert-info">
-								<strong>No Plat + Tanggal Input</strong>
-								<br/>Untuk surat jalan dengan nomor plat mobil yang sama pada satu kedatangan, isilah tanggal dan jam penerimaan dengan data yang sama.
+								<strong>Penerimaan Barang</strong>
 							</div>
 
 							<div class="form-group">
-			                    <label class="control-label col-md-3">No Plat<span class="required">
+			                    <label class="control-label col-md-3">No Mobil<span class="required">
 			                    * </span>
 			                    </label>
 			                    <div class="col-md-6">
-									<input type="text" class="form-control" name="no_plat" id="no-plat-edit" onfocus="showHistory('edit')" onfocusout="hideHistory('edit')" value="<?=$no_plat;?>" >
-									<div id="plat-history-edit" class="plat-history">
-										<b>pilih dari history : </b>
-										<ul>
-											<?php foreach ($penerimaan_barang_before as $row){
-												$tgl_input_1 = explode(" ", $row->tanggal_input);
-												$tInputShow = date('d F Y', strtotime($tgl_input_1[0]))." - ".$tgl_input_1[1];?>
-												<li data-id="<?=$row->id?>" onclick="choosePlat('edit','<?=$row->no_plat?>','<?=$tInputShow?>')" ><?=($row->no_plat).'-'.($tInputShow); ?></option>
-											<?php }; ?>
-										</ul>
-									</div>
-			                    </div>
-			                </div>
-
-							<div class="form-group">
-			                    <label class="control-label col-md-3">Waktu Penerimaan<span class="required">
-			                    * </span>
-			                    </label>
-			                    <div class="col-md-6">
-									<div class="input-group date form_datetime" data-date="<?=$tanggal_input;?>">
-										<input type="text" size="16" class="form-control" name='tanggal_input' id="tanggal-input-edit" value="<?=$tShow;?>">
+									<div class="input-group">
+										<select name="penerimaan_barang_id" id="penerimaan-barang-add" class="form-control">
+											<option value="">Pilih</option>
+												<?php foreach ($penerimaan_barang_before as $row){?>
+													<option value="<?=$row->id?>"><?=$row->no_plat?> - <?=date('d/m/Y H:i', strtotime($row->tanggal_input));?></option>
+												<?php }; ?>
+										</select>
 										<span class="input-group-btn">
-											<button class="btn default date-set" type="button"><i class="fa fa-calendar"></i></button>
+											<button class="btn default" type="button" onclick="refreshPenerimaan('add')" title="refresh data penerimaan"><i class="fa fa-refresh"></i></button>
+											<a href="<?=base_url().is_setting_link('inventory/penerimaan_barang')?>" class="btn default" target="_blank" title="tambah data penerimaan"><i class="fa fa-plus"></i></a>
 										</span>
 									</div>
-									<div class='alert alert-info'>Untuk mengisi manual klik 1x lagi kotak isian</div>
+								
 			                    </div>
 			                </div>
-
 
 			                <div class="form-group" hidden>
 			                    <label class="control-label col-md-3">Toko
@@ -1732,6 +1723,30 @@ function checkPOSupplier(){
 			}
 		}
 	}
+}
+
+function refreshPenerimaan(action){
+	let data = {};
+	let url = 'transaction/get_data_penerimaan_on_progress';
+	const select = $(`#penerimaan-barang-${action}`);
+	ajax_data_sync(url,data).done(function(data_respond  /*,textStatus, jqXHR*/ ){
+		const res = JSON.parse(data_respond);
+		if (res.status == 'success') {
+			const newData = res.data;
+			select.empty();
+			const newOpt = `<option value=''>Pilih</option>`;
+			select.append(newOpt);
+			$.each(newData, function(i,v){
+				/* const newOpt = new Option(v.no_faktur, v.id, false, false);
+				select.append(newOpt).trigger('change'); */
+
+				const newOpt = `<option value='${v.id}'>${v.no_plat} - ${v.tanggal_input}</option>`;
+				select.append(newOpt);
+			});
+
+			notific8("lime", "Data penerimaan barang berhasil di perbarui");
+		};
+	});
 }
 
 </script>

@@ -2887,6 +2887,8 @@ class Common_Model extends CI_Model
 					WHERE id IN (
 						SELECT max(id)
 						FROM nd_penerimaan_barang_status
+						GROUP BY penerimaan_barang_id
+						)
 					) t2
 				ON t1.id = t2.penerimaan_barang_id
 				WHERE status_penerimaan != 'SUDAH_KONFIRMASI'

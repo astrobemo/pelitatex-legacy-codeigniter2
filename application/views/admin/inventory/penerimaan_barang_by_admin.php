@@ -277,6 +277,15 @@ function removePenerimaan(id, no_faktur){
 	const nFaktur = (no_faktur == '' ? "" : "(surat jalan yang terkoneksi : "+no_faktur+")" );
 	bootbox.confirm(`Yakin menghapus penerimaan ini ${nFaktur}? <br>data tidak dapat dikembalikan `, function(respond){
 		if(respond){
+
+			fetch(`<?php echo base_url('inventory/remove_penerimaan_barang'); ?>`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({id:id})
+			})
+
 			$.ajax({
 				type: "POST",
 				url: "<?php echo base_url('inventory/remove_penerimaan_barang'); ?>",

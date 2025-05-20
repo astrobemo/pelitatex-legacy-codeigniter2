@@ -33,7 +33,10 @@ var FormNewPembelian = function () {
                     },
                     ockh_info:{
                         required: '#po_list:blank'
-                    }
+                    },
+                    penerimaan_barang_id:{
+                        required: true
+                    },
                 },
 
                 messages: { // custom messages for radio buttons and checkboxes
@@ -166,7 +169,10 @@ var FormEditPembelian = function () {
                     },
                     ockh_info:{
                         required: '#po_list_edit:blank'
-                    }
+                    },
+                    penerimaan_barang_id:{
+                        required: true
+                    },
                 },
 
                 messages: { // custom messages for radio buttons and checkboxes

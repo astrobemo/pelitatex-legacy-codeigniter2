@@ -1740,6 +1740,15 @@ class Transaction extends CI_Controller {
         // }
 
     }
+
+    function get_data_penerimaan_on_progress(){
+        $result = $this->common_model->get_penerimaan_barang_suggestion();
+        echo json_encode(array(
+            'status'=>'success',
+            'data'=>$result));
+    }
+
+
     function po_pembelian_warna_lock(){
         $po_pembelian_warna_id = $this->input->post('po_pembelian_warna_id');
         $data = array(
