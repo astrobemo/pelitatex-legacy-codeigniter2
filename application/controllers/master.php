@@ -492,6 +492,18 @@ class Master extends CI_Controller
 		$this->load->view('admin/template', $data);
 	}
 
+	function get_barang_sku_by_barang_id(){
+		$barang_id = $this->input->get('barang_id');
+		$res = $this->common_model->get_barang_sku_by_barang_id($barang_id);
+		echo json_encode($res);
+	}
+
+	function get_barang_sku_all(){
+		$res = $this->common_model->get_barang_sku_all();
+		echo json_encode($res);
+	}
+
+
 	function data_barang()
 	{
 

@@ -475,13 +475,56 @@ var data_lock = [];
 <?};?>
 var hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
+
+let barangSKUList = [];
+let barangSKUFiltered = [];
+let isBarangSKULoaded = false;
+
+async function getBarangSKUList(){
+	let data = {};
+	var url = 'master/get_barang_sku_all';
+	// update_table(ini);
+	
+	const response = await fetch(baseurl+url);
+	const data_respond = await response.json();
+	barangSKUList = data_respond;
+}
+
+
+(async function() {
+	// Initialize the popover
+	$('[data-toggle="popover"]').popover({
+		html: true,
+		trigger: 'hover',
+		container: 'body'
+	});
+
+	await getBarangSKUList();
+	isBarangSKULoaded = true;
+})();
+
 jQuery(document).ready(function() {
 	//Metronic.init(); // init metronic core components
 	//Layout.init(); // init current layout
 	// TableAdvanced.init();
 
 
-	$('#barang_id_select, #warna_id_select').select2();
+	$('#barang_id_select').select2();
+
+	var dialog = bootbox.dialog({
+		message: '<div class="text-center"><i class="fa fa-spinner fa-spinner"></i> Loading SKU...</div>',
+		closeButton: false,
+		className: 'modal-loading'
+	});
+
+	var skuInterval = setInterval(function() {
+		if (isBarangSKULoaded) {
+			console.log('Barang SKU loaded');
+			dialog.modal('hide');
+			clearInterval(skuInterval);
+			// You can add additional logic here if needed
+		}
+	}, 500);
 
 	
 	$(".timepicker").datetimepicker({
@@ -610,6 +653,17 @@ jQuery(document).ready(function() {
 					
 				};
 			}
+		}else if($('#barang_id_select').val() != ''){
+			const barangId = $('#barang_id_select').val();
+			barangSKUFiltered = barangSKUList.filter((item) => item.barang_id_toko == barangId);
+			let warnaList = '';
+
+			$('#warna_id_select').empty();
+			barangSKUFiltered.forEach((item) => {
+				warnaList += `<option value="${item.warna_id_toko}">${item.nama_warna}</option>`;
+			});
+
+			$('#warna_id_select').append(warnaList);
 		}
 
 	});
@@ -617,11 +671,7 @@ jQuery(document).ready(function() {
 	$(".search-opname").click(function(){
 		var totalan = 0;
 		totalan = count_gudang;
-		// alert(totalan);
-
-		// alert(count_gudang);
 		if (totalan == 0) {
-			// count_gudang = 0;
 			searchAndDrawTable();
 		}else{
 			bootbox.confirm("Table belum di save, yakin ubah nama barang ? ", function(respond){

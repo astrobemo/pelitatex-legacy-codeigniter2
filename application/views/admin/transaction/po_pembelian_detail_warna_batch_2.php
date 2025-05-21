@@ -380,7 +380,7 @@
 				<div class="modal-content">
 					<div class="modal-body">
 						<form action="<?=base_url('transaction/po_pembelian_warna_insert')?>" class="form-horizontal" id="form_add_barang" method="post">
-							<h3 class='block'> Data Barang</h3>
+							<h3 class='block'>Add Data Barang</h3>
 							
 							<div class="form-group">
 			                    <label class="control-label col-md-3">Barang (PO Master)<span class="required">
@@ -391,6 +391,7 @@
 			                    	<input name='po_pembelian_detail_warna_id' <?=(is_posisi_id() != 1 ? 'hidden' : '');?> >
 			                    	<input name='batch_id' value='<?=$batch_id;?>' hidden>
 			                    	<select name="po_pembelian_detail_id" class='form-control input1' id='barang_id_select'>
+										<option value=''>Pilih</option>
 		                				<? $nama_occupied = array();
 		                				foreach ($data_barang_po as $row) { 
 		                					$nama_occupied[$row->nama_barang] = true;
@@ -421,7 +422,7 @@
 			                    * </span>
 			                    </label>
 			                    <div class="col-md-8">
-			                    	<div class="radio-list">
+			                    	<div id='tipe-barang-group' class="radio-list">
 										<label class="radio-inline">
 					                    	<input name='tipe_barang' class='tipe-barang' onchange="filterTipeBarang('1','','')" type='radio' value='1' <?=($tipe_barang_last == '1' || $tipe_barang_last == '' ? 'checked' : '')?> <?=($tipe_barang_last == 1 ? 'checked' : '');?> >Reguler</label>
 										<label class="radio-inline">
@@ -1165,6 +1166,8 @@ var history_harga_global = {};
 const po_pembelian_id = "<?=$po_pembelian_id?>";
 const batch_id = "<?=$batch_id?>";
 var barang_list = [];
+let barangSKUList = [];
+let barangSKUFiltered = [];
 
 <?
 if($batch_id != ''){
@@ -1177,9 +1180,51 @@ if($batch_id != ''){
 	}
 }?>
 
+let isBarangSKULoaded = false;
+
+async function getBarangSKUList(){
+	let data = {};
+	var url = 'master/get_barang_sku_all';
+	// update_table(ini);
+	
+	const response = await fetch(baseurl+url);
+	const data_respond = await response.json();
+	console.log(data_respond);
+	barangSKUList = data_respond;
+}
+
+
+(async function() {
+	// Initialize the popover
+	$('[data-toggle="popover"]').popover({
+		html: true,
+		trigger: 'hover',
+		container: 'body'
+	});
+
+	await getBarangSKUList();
+	isBarangSKULoaded = true;
+})();
+
 jQuery(document).ready(function() {
 
 	get_history_harga();
+	var dialog = bootbox.dialog({
+		message: '<div class="text-center"><i class="fa fa-spinner fa-spinner"></i> Loading SKU...</div>',
+		closeButton: false,
+		className: 'modal-loading'
+	});
+
+	var skuInterval = setInterval(function() {
+		if (isBarangSKULoaded) {
+			console.log('Barang SKU loaded');
+			dialog.modal('hide');
+			clearInterval(skuInterval);
+			// You can add additional logic here if needed
+		}
+	}, 500);
+
+
    	$('[data-toggle="popover"]').popover();	  	
 	
 	$('#barang_id_baru_select, #barang_id_baru_select_rename').select2({
@@ -1187,10 +1232,10 @@ jQuery(document).ready(function() {
         allowClear: true
     });
 
-    $('#warna_id_select').select2({
+    /* $('#warna_id_select').select2({
         placeholder: "Pilih...",
         allowClear: true
-    });
+    }); */
 
     $('#harga-baru').change(function(){
     	let barang_id = $('#barang_id_baru_select').val();
@@ -1439,10 +1484,44 @@ jQuery(document).ready(function() {
 
     $('#barang_id_select').change(function(){
     	$('#harga-baru-info').text();
-    	var barang_id = $('#barang_id_select').val();
-    	var dt = $("#barang_id_copy [value='"+barang_id+"']").text().split('??');
+    	var id = $('#barang_id_select').val();
+    	var dt = $("#barang_id_copy [value='"+id+"']").text().split('??');
     	let harga=dt[0];
     	$("#form_add_barang [name=harga_baru]").val(parseFloat(harga));
+		
+		const group = document.getElementById('tipe-barang-group');
+		const selected = group.querySelector('input[name="tipe_barang"]:checked');
+		let tipe_barang = '';
+		let barang_id_for_sku = dt[1];
+		if (selected) {
+			tipe_barang = selected.value;
+		}
+
+		if (tipe_barang != 1) {
+			barang_id_for_sku = $(`#barang_id_baru_select`).val();
+		}
+
+		if(barang_id_for_sku != ''){
+			const dialog = bootbox.dialog({
+				message: '<div class="text-center"><i class="fa fa-spinner fa-spinner"></i> loading warna...</div>',
+				closeButton: false,
+				className: 'modal-loading'
+			});
+
+			barangSKUFiltered = barangSKUList.filter(item => item.barang_id_toko == barang_id_for_sku);
+
+			console.log('barang_id_for_sku',barang_id_for_sku);
+			console.log('barangSKUFiltered',barangSKUFiltered);
+			$(`#warna_id_select`).empty();
+			let warnaList = '';
+			barangSKUFiltered.forEach(item => {
+				warnaList += `<option value="${item.warna_id_toko}">${item.nama_warna.toString().toUpperCase()}</option>`;
+			});
+			$(`#warna_id_select`).append(warnaList);
+			dialog.modal('hide');
+		}
+		
+
     });
 
     //#barang_id_baru_select_rename, 

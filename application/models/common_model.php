@@ -1512,6 +1512,46 @@ class Common_Model extends CI_Model
 		return $query;
 	}
 
+	function get_barang_sku_by_barang_id($barang_id)
+	{
+		$query = $this->db->query("SELECT barang_id_toko, master_toko.barang_id_master, master_sku.nama_barang as nama_barang_sku,
+					warna_id_toko, master_warna.warna_id_master, master_sku.barang_sku_id, kode_warna, warna_jual as nama_warna 
+					FROM (
+						SELECT barang_id_toko, barang_id_master
+						FROM nd_master_toko_barang
+						WHERE barang_id_toko = $barang_id
+					) master_toko
+					LEFT JOIN nd_master_barang_sku master_sku
+					ON master_toko.barang_id_master = master_sku.barang_id_master
+					LEFT JOIN nd_master_toko_warna master_warna
+					ON master_warna.warna_id_master = master_sku.warna_id_master
+					LEFT JOIN nd_warna
+					ON master_warna.warna_id_toko = nd_warna.id
+					ORDER BY master_sku.nama_barang asc
+			");
+
+		return $query->result();
+	}
+
+	function get_barang_sku_all(){
+		$query = $this->db->query("SELECT barang_id_toko, master_toko.barang_id_master, master_sku.nama_barang as nama_barang_sku,
+			warna_id_toko, master_warna.warna_id_master, master_sku.barang_sku_id, kode_warna, warna_jual as nama_warna 
+			FROM (
+				SELECT barang_id_toko, barang_id_master
+				FROM nd_master_toko_barang
+			) master_toko
+			LEFT JOIN nd_master_barang_sku master_sku
+			ON master_toko.barang_id_master = master_sku.barang_id_master
+			LEFT JOIN nd_master_toko_warna master_warna
+			ON master_warna.warna_id_master = master_sku.warna_id_master
+			LEFT JOIN nd_warna
+			ON master_warna.warna_id_toko = nd_warna.id
+			ORDER BY master_sku.nama_barang asc
+		");
+		return $query->result();
+
+	}
+
 	function get_barang_list_aktif()
 	{
 		$query = $this->db->query("SELECT tbl_a.*, tbl_b.nama as nama_satuan

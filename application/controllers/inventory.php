@@ -6429,7 +6429,7 @@ class Inventory extends CI_Controller {
 		$data = array(
 			'content' =>'admin/inventory/stok_opname_detail',
 			'breadcrumb_title' => 'Stok',
-			'breadcrumb_small' => 'Daftar Barang Stok Opnames',
+			'breadcrumb_small' => 'Daftar Barang Stok Opname',
 			'nama_menu' => $menu[0],
 			'nama_submenu' => $menu[1],
 			'common_data'=> $this->data,
