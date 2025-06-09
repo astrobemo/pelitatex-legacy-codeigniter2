@@ -20,7 +20,7 @@ var FormAddCustomer = function () {
                         minlength: 19,
                         required: '#npwp-add:blank'
                     },npwp: {
-                        minlength: 20,
+                        minlength: 19,
                         required: '#nik-add:blank'
                     },blok:{
                         required: true
@@ -52,7 +52,7 @@ var FormAddCustomer = function () {
                 },
                 messages: {
                     nik: "Npwp/NIK diisi salah satu, Digit NIK harus 16 angka",
-                    npwp: "Npwp/NIK diisi salah satu, Digit NPWP harus 15 angka"
+                    npwp: "Npwp/NIK diisi salah satu, Digit NPWP harus 16 angka"
                 },
                 errorPlacement: function (error, element) { // render error placement for each input type
                     error.insertAfter(element); // for other inputs, just perform default behavior
@@ -94,7 +94,7 @@ var FormAddCustomer = function () {
                 'autounmask': true
             });
 
-            $("#npwp-add").inputmask("99.999.999.9-999.999", {
+            $("#npwp-add").inputmask("9999 9999 9999 9999", {
                 placeholder: " ",
                 clearMaskOnLostFocus: true
             }); //default
@@ -158,7 +158,7 @@ var FormEditCustomer = function () {
                         minlength: 19,
                         required: '#npwp-edit:blank'
                     },npwp: {
-                        minlength: 20,
+                        minlength: 19,
                         required: '#nik-edit:blank'
                     },blok:{
                         required: true
@@ -188,7 +188,7 @@ var FormEditCustomer = function () {
                 },
                 messages: {
                     nik: "Npwp/NIK diisi salah satu, Digit NIK harus 16 angka",
-                    npwp: "Npwp/NIK diisi salah satu, Digit NPWP harus 15 angka"
+                    npwp: "Npwp/NIK diisi salah satu, Digit NPWP harus 16 angka"
                 },
                 errorPlacement: function (error, element) { // render error placement for each input type
                     error.insertAfter(element); // for other inputs, just perform default behavior
@@ -230,7 +230,7 @@ var FormEditCustomer = function () {
                 'autounmask': true
             });
 
-            $("#npwp-edit").inputmask("99.999.999.9-999.999", {
+            $("#npwp-edit").inputmask("9999 9999 9999 9999", {
                 placeholder: " ",
                 clearMaskOnLostFocus: true
             }); //default

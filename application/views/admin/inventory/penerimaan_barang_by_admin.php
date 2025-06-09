@@ -284,11 +284,12 @@ function removePenerimaan(id, no_faktur){
 				data: {id:id},
 				success: function(data){
 					const res = JSON.parse(data);
+					console.log(res);
 					if(res.status == 'success'){
 						notific8("lime","Sukses, halaman akan di refresh", 3000);
 						location.reload();
 					}else if(res.status){
-						notific8("red","Gagal menghapus penerimaan barang, sudah ada barang yang di register", 3000);
+						notific8("ruby","Gagal menghapus penerimaan barang, sudah ada barang yang di register", 3000);
 					}else{
 						alert('Gagal menghapus penerimaan barang');
 					}

@@ -665,7 +665,6 @@ jQuery(document).ready(function() {
 
 			$('#warna_id_select').append(warnaList);
 		}
-
 	});
 
 	$(".search-opname").click(function(){

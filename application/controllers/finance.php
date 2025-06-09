@@ -154,7 +154,7 @@ class Finance extends CI_Controller {
 		redirect(is_setting_link('finance/giro_register_list_detail').'?id='.$giro_list_id);
 	}
 
-	function giro_list_detail_remove(){
+	function giro_register_list_detail_remove(){
 		$id = $this->input->get('id');
 		$giro_list_id = $this->input->get('giro_list_id');
 		$this->common_model->db_delete('nd_giro_list_detail', 'id', $id);

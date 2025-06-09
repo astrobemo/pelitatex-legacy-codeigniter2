@@ -7552,9 +7552,8 @@ class Inventory extends CI_Controller {
 
 	function remove_penerimaan_barang(){
 
-		$json_data = file_get_contents('php://input');
-		if (isset($data['id'])) {
-			$id = $data['id'];
+		$id = $this->input->post('id');
+		if ($id != '') {
 			
 			$res = $this->common_model->db_free_query_superadmin("SELECT count(barang_id) as total_barang 
 				FROM nd_pembelian tA
@@ -7562,7 +7561,7 @@ class Inventory extends CI_Controller {
 				WHERE tA.penerimaan_barang_id = $id");
 
 			$total_barang = 0;
-			foreach($res as $row){
+			foreach($res->result() as $row){
 				$total_barang = $row->total_barang;
 			}
 

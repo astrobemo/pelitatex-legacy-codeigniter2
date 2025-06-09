@@ -738,7 +738,7 @@
 								
 								<!-- print HTMLPDF -->
 								<a href="#portlet-config-printHTML" data-toggle="modal" style='<?=$display;?>'  type="button" tabindex='-1' class="btn btn-lg blue" onclick="webPrintHTML('1')">FAKTUR</a>
-								<a href="#portlet-config-printHTML" data-toggle="modal" style='<?=$display;?>'  type="button" tabindex='-1' class="btn btn-lg blue" onclick="webPrintHTML('2')">FAKTUR + DETAIL</a>
+								<a href="#portlet-config-printHTML" data-toggle="modal" style='<?=$display;?>'  type="button" tabindex='-1' class="btn btn-lg blue" onclick="webPrintHTML('2')">FAKTUR + DETAIL.</a>
 								<!-- end print HTML -->
 								
 								<a id="btn-invoice-sj" style='<?=$display;?>'  tabindex='-1' class='btn btn-lg yellow-gold hidden-print' href='#portlet-config-address' data-toggle="modal">

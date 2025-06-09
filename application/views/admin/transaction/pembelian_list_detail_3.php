@@ -353,14 +353,14 @@
 			                    </label>
 			                    <div class="col-md-6">
 									<div class="input-group">
-										<select name="penerimaan_barang_id" id="penerimaan-barang-add" class="form-control">
+										<select name="penerimaan_barang_id" id="penerimaan-barang-edit" class="form-control">
 											<option value="">Pilih</option>
 												<?php foreach ($penerimaan_barang_before as $row){?>
 													<option value="<?=$row->id?>"><?=$row->no_plat?> - <?=date('d/m/Y H:i', strtotime($row->tanggal_input));?></option>
 												<?php }; ?>
 										</select>
 										<span class="input-group-btn">
-											<button class="btn default" type="button" onclick="refreshPenerimaan('add')" title="refresh data penerimaan"><i class="fa fa-refresh"></i></button>
+											<button class="btn default" type="button" onclick="refreshPenerimaan('edit')" title="refresh data penerimaan"><i class="fa fa-refresh"></i></button>
 											<a href="<?=base_url().is_setting_link('inventory/penerimaan_barang')?>" class="btn default" target="_blank" title="tambah data penerimaan"><i class="fa fa-plus"></i></a>
 										</span>
 									</div>

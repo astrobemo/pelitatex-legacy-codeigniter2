@@ -359,7 +359,7 @@
                                                         <label class="control-label col-md-3">NPWP</label>
 
                                                         <div class="col-md-9">
-                                                            <input type="text" class="form-control mask-npwp" id='npwp-add' name="npwp" maxlength='20' tabindex='12' id='npwp' autocomplete='off' />
+                                                            <input type="text" class="form-control mask-npwp" id='npwp-add' name="npwp" maxlength='19' tabindex='12' id='npwp' autocomplete='off' />
                                                         </div>
                                                     </div>
 
@@ -722,7 +722,7 @@
                                                         <label class="control-label col-md-3">NPWP</label>
 
                                                         <div class="col-md-9">
-                                                            <input type="text" class="form-control mask-npwp-edit" id='npwp-edit' maxlength='20' name="npwp" tabindex='12' autocomplete='off' />
+                                                            <input type="text" class="form-control mask-npwp-edit" id='npwp-edit' maxlength='19' name="npwp" tabindex='12' autocomplete='off' />
                                                         </div>
                                                     </div>
 
@@ -967,7 +967,7 @@ jQuery(document).ready(function() {
                 email = '';
             }
             var npwp = other_data[2];
-            if (npwp == null) {
+            if (npwp == null || npwp == 0) {
                 npwp = '';
             }
             var status_aktif = $('td:eq(0)', nRow).text();
@@ -1723,12 +1723,12 @@ function saveFormSource(id) {
 
             
           //format textbox
-          $('#npwp-add').mask('00.000.000.0-000.000', {
-                placeholder: "00.000.000.0-000.000"
+          $('#npwp-add').mask('0000 0000 0000 0000', {
+                placeholder: "0000 0000 0000 0000"
           });
     
-          $('#npwp-edit').mask('00.000.000.0-000.000', {
-                placeholder: "00.000.000.0-000.000"
+          $('#npwp-edit').mask('0000 0000 0000 0000', {
+                placeholder: "0000 0000 0000 0000"
           });
     
           $('#nik-add').mask('0000 0000 0000 0000', {
