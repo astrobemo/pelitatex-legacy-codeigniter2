@@ -4602,13 +4602,19 @@ class Inventory_Model extends CI_Model {
 
 	function get_stok_barang_satuan_2($gudang_id, $barang_id, $warna_id, $tanggal_start, $tanggal_end, $tanggal_awal, $stok_opname_id){
 		// $tanggal_awal = $tanggal_start;
+		$nf = "ifnull(if(status_penerimaan != 'FINISHED', 'Bongkaran Barang', 'Barang Masuk' ), 'Barang Masuk')";
+		if(is_posisi_id() !=5){
+			$nf = "concat($nf,' <br/> ', concat(no_faktur,if(qty <= 5, concat(' (<b>',ockh_info,'</b>)'), '' )))";
+		}
+
 		$query = $this->db->query("SELECT tbl_b.nama as nama_barang, tanggal, tbl_c.warna_beli as nama_warna, barang_id, warna_id, qty_masuk, qty_keluar, jumlah_roll_masuk, jumlah_roll_keluar, no_faktur, tipe, trx_id, tbl_a.id, qty_data, roll_data, time_stamp
 				FROM(
 					(
 				        SELECT barang_id, warna_id, t2.gudang_id, 
 				        qty as qty_masuk, jumlah_roll as jumlah_roll_masuk, 
 				        CAST(0 as DECIMAL(15,2)) as qty_keluar, 0 as jumlah_roll_keluar, 
-				        tanggal, concat(no_faktur,if(qty <= 5, concat(' (<b>',ockh_info,'</b>)'), '' )) as no_faktur, 'a1' as tipe, t2.id as trx_id, t1.id, qty_data, roll_data, created_at as time_stamp
+				        tanggal, $nf as no_faktur, 
+						'a1' as tipe, t2.id as trx_id, t1.id, qty_data, roll_data, created_at as time_stamp
 				        FROM (
 				        	SELECT *
 				        	FROM nd_pembelian_detail
@@ -4631,6 +4637,16 @@ class Inventory_Model extends CI_Model {
 				            GROUP BY pembelian_detail_id
 				        	) t3
 				        ON t3.pembelian_detail_id = t1.id
+						LEFT JOIN (
+							SELECT penerimaan_barang_id, status_penerimaan
+							FROM nd_penerimaan_barang_status t1
+							WHERE id IN (
+								SELECT max(id)
+								FROM nd_penerimaan_barang_status
+								GROUP BY penerimaan_barang_id
+							)
+						) t4
+						ON t4.penerimaan_barang_id = t2.penerimaan_barang_id
 				        WHERE barang_id is not null 
 				        AND warna_id is not null
 				        AND t2.id is not null

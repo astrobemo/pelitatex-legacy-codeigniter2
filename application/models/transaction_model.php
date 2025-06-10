@@ -3072,7 +3072,18 @@ function get_data_penjualan_detail_group($id){
 		            AND status_aktif = 1
 		            ) t2
 		        ON t1.pembelian_id = t2.id
+				LEFT JOIN (
+					SELECT penerimaan_barang_id, status_penerimaan
+					FROM nd_penerimaan_barang_status t1
+					WHERE id IN (
+						SELECT max(id)
+						FROM nd_penerimaan_barang_status
+						GROUP BY penerimaan_barang_id
+					)
+				) t3
+		        ON t3.penerimaan_barang_id = t2.penerimaan_barang_id
 		        WHERE t2.id is not null
+				AND (t3.status_penerimaan = 'FINISHED' OR t3.status_penerimaan is null)
 		    )UNION(
 		        SELECT barang_id, warna_id, gudang_id_after, qty , jumlah_roll , 0, 0, tanggal, 2, id, created_at
 		        FROM nd_mutasi_barang
