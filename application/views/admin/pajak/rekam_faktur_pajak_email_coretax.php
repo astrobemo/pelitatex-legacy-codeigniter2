@@ -659,7 +659,7 @@ foreach ($google_setting as $row) {
 	<span class='info-nama-cust'></span> 
 	(<span class='counter'></span>)</div>
 	<div id='processDrafting' class="text">Create Draft....<br/>
-		<span id='processBatching' class="text">Checking Batch....</span>
+		<!-- <span id='processBatching' class="text">Checking Batch....</span> -->
 		<span class='info-nama-cust'></span> 
 		(<span class='counter'></span>)</div>
 
@@ -1071,8 +1071,6 @@ async function processingMailList(){
 	const batch = await checkDraftList(batchLimit);
 	console.log('batch', batch);
 	for (let i = 0; i < batch; i++) {
-		document.querySelector("#processBatching").innerHTML = 'Batching ' + (i+1) +'/'+batch+ '  data...';
-		document.querySelector("#processBatching").style.display = 'none';
 		await generateDraftData(batchLimit);
 	}
 
@@ -1080,7 +1078,6 @@ async function processingMailList(){
 }
 
 async function checkDraftList(batchLimit){
-	document.querySelector("#processBatching").style.display = 'block';
 	document.querySelector("#processListing").style.display = 'none';
 	document.querySelector("#processDrafting").style.display = 'none';
 	document.querySelector("#processSending").style.display = 'none';
@@ -1091,7 +1088,7 @@ async function checkDraftList(batchLimit){
 	const data = await response.json();
 	
 	let batch = Math.ceil(data / batchLimit);	
-	document.querySelector("#processBatching").innerHTML = 'Batching ' + batch + ' data...';
+	// document.querySelector("#processBatching").innerHTML = 'Batching ' + batch + ' data...';
 	console.log('batch', batch);
 
 	return batch;
