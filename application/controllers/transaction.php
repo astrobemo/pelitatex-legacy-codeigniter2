@@ -1509,7 +1509,10 @@ class Transaction extends CI_Controller {
         }
 
         $po_pembelian_batch_id = ($po_pembelian_batch_id == '' ? null : $po_pembelian_batch_id);
-        $penerimaan_barang_id = $this->input->post('penerimaan_barang_id');        
+        $penerimaan_barang_id = null;
+        if(is_posisi_id() == 1){
+            $penerimaan_barang_id = $this->input->post('penerimaan_barang_id');        
+        }
 
 		
 		$data_pembelian = array(

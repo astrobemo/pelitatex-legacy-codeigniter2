@@ -7486,7 +7486,7 @@ class Inventory extends CI_Controller {
 
 //=====================================penerimaan barang=============================================
 
-	function penerimaan_barang(){
+	function penerimaan_barang_by_admin(){
 		$menu = is_get_url($this->uri->segment(1)) ;
 
 		if ($this->input->get('from')) {
@@ -7546,7 +7546,7 @@ class Inventory extends CI_Controller {
 		}
 		
 
-		redirect(is_setting_link('inventory/penerimaan_barang'));
+		redirect(is_setting_link('inventory/penerimaan_barang_by_admin'));
 		
 	}
 

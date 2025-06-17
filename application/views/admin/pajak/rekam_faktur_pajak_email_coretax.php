@@ -656,9 +656,10 @@ foreach ($google_setting as $row) {
 <div id='layer'>
 	<div id='processListing' class="text">Prepare Email List....</div>
 	<div id='processSending' class="text">sending....<br/>
-		<span class='info-nama-cust'></span> 
-		(<span class='counter'></span>)</div>
+	<span class='info-nama-cust'></span> 
+	(<span class='counter'></span>)</div>
 	<div id='processDrafting' class="text">Create Draft....<br/>
+		<span id='processBatching' class="text">Checking Batch....</span>
 		<span class='info-nama-cust'></span> 
 		(<span class='counter'></span>)</div>
 
@@ -1065,19 +1066,63 @@ function sendAllMail(){
 }
 
 async function processingMailList(){
-	await generateDraftData();
+
+	const batchLimit = 15; // Set the batch limit
+	const batch = await checkDraftList(batchLimit);
+	console.log('batch', batch);
+	for (let i = 0; i < batch; i++) {
+		document.querySelector("#processBatching").innerHTML = 'Batching ' + (i+1) +'/'+batch+ '  data...';
+		document.querySelector("#processBatching").style.display = 'none';
+		await generateDraftData(batchLimit);
+	}
+
 	await generateMailData();
 }
 
+async function checkDraftList(batchLimit){
+	document.querySelector("#processBatching").style.display = 'block';
+	document.querySelector("#processListing").style.display = 'none';
+	document.querySelector("#processDrafting").style.display = 'none';
+	document.querySelector("#processSending").style.display = 'none';
+	document.querySelector("#processChecking").style.display = 'none';
+	document.querySelector('#layer').style.display = 'block';
 
-async function generateDraftData(){
+	const response = await fetch(baseurl+`pajak/email_list_draft_list?id=${rekam_faktur_pajak_id}`);
+	const data = await response.json();
+	
+	let batch = Math.ceil(data / batchLimit);	
+	document.querySelector("#processBatching").innerHTML = 'Batching ' + batch + ' data...';
+	console.log('batch', batch);
+
+	return batch;
+
+	// if (Array.isArray(data) && data.length > 0) {
+		
+	// 	document.querySelector("#processBatching").style.display = 'none';
+	// 	document.querySelector('#processDrafting .info-nama-cust').innerHTML = content;
+		
+	// }else{
+	// 	alert("Tidak ada email draft yang perlu di cek");
+	// }
+}
+
+async function chunkArray(array, chunkSize) {
+	const chunks = [];
+	for (let i = 0; i < array.length; i += chunkSize) {
+		chunks.push(array.slice(i, i + chunkSize));
+	}
+	return chunks;
+}
+
+
+async function generateDraftData(batchLimit){
 
 	document.querySelector("#processDrafting").style.display = 'none';
 	document.querySelector("#processSending").style.display = 'none';
 	document.querySelector("#processChecking").style.display = 'none';
 	document.querySelector('#layer').style.display = 'block';
 
-	const response = await fetch(baseurl+`pajak/email_list_body?id=${rekam_faktur_pajak_id}`);
+	const response = await fetch(baseurl+`pajak/email_list_body?id=${rekam_faktur_pajak_id}&limit=${batchLimit}`);
 	const data = await response.json();
 	console.log(data.head);
 	console.log(data.body);
@@ -1089,11 +1134,20 @@ async function generateDraftData(){
 		const emailList = data.body;
 		const customerList = data.head;
 		// const max = (emailList.length > 5 ? 5 : emailList.length);
-		await generateDraftList(emailList, customerList);		
+
+		const chunckedEmailList = await chunkArray(emailList, 15);
+		const chuckedCustomerList = await chunkArray(customerList, 15);
+		for (let i = 0; i < chunckedEmailList.length; i++) {
+			const emailListChunk = chunckedEmailList[i];
+			const customerListChunk = chuckedCustomerList[i];
+			await generateDraftList(emailListChunk, customerListChunk);
+		}
+
 	}else{
 		return false;
 	}
 }
+
 
 async function generateDraftList(emailList, customerList){
 	const fetchPromises = [];
@@ -1143,9 +1197,8 @@ async function generateDraftList(emailList, customerList){
 			console.error('Error:', error);
 			break;
 		}
-
-
 	}
+
 	await Promise.all(fetchPromises);
 	if(insertList.length > 0){
 		await insertKeteranganBatch(insertList);
@@ -1155,6 +1208,7 @@ async function generateDraftList(emailList, customerList){
 		await updateKeteranganBatch(draftList);
 	}
 };
+
 
 async function generateMailData(){
 	let emailList = [];
@@ -1174,7 +1228,18 @@ async function generateMailData(){
 			document.querySelector("#processDrafting").style.display = 'none';
 			document.querySelector("#processSending").style.display = 'block';
 			emailList = data;
-			generateMailList(emailList);
+
+			const chunckedEmailList = await chunkArray(emailList, 15);
+			for (let i = 0; i < chunckedEmailList.length; i++) {
+				const emailListChunk = chunckedEmailList[i];
+				await generateMailList(emailListChunk);
+			}
+
+			setTimeout(async() => {
+				await checkStatusList();
+				// location.reload();
+			}, 3000);
+
 			// const max = (emailList.length > 5 ? 5 : emailList.length);
 		} else {
 			document.querySelector('#layer').style.display = 'none';
@@ -1249,13 +1314,7 @@ async function generateMailList(emailList){
 
 	}
 
-	await Promise.all(fetchPromises);
-	setTimeout(async() => {
-		await checkStatusList();
-		// location.reload();
-	}, 3000);
-
-		
+	await Promise.all(fetchPromises);		
 	
 }
 
@@ -1388,20 +1447,27 @@ async function checkStatusList(){
 		for (const list of checkList) {
 			counter++;
 			if(list.thread_id !== null){
-				const fetchPromise = fetch(`https://gmail.googleapis.com/gmail/v1/users/relay.do.bdg@gmail.com/threads/${list.thread_id}?access_token=${tokenBerlaku}`)
-				.then((response) => response.json())
-				.then((data) => {
-					
-					const messages = data.messages;
-					const status = messages[0].labelIds[0];
-					updateList.push({
-						id: list.id,
-						label_id: status.toUpperCase()
+				try {
+					const fetchPromise = fetch(`https://gmail.googleapis.com/gmail/v1/users/relay.do.bdg@gmail.com/threads/${list.thread_id}?access_token=${tokenBerlaku}`)
+					.then((response) => response.json())
+					.then((data) => {
+						
+						const messages = data.messages;
+						const status = messages[0].labelIds[0];
+						updateList.push({
+							id: list.id,
+							label_id: status.toUpperCase()
+						});
+						dialog.find('.bootbox-body').find(`#checkStatusBootbox`).prepend(`<li>${list.nama} : ${status}</li>`);
 					});
-					dialog.find('.bootbox-body').find(`#checkStatusBootbox`).prepend(`<li>${list.nama} : ${status}</li>`);
-				});
-	
-				fetchPromises.push(fetchPromise);
+		
+					fetchPromises.push(fetchPromise);
+				} catch (error) {
+					console.error('Error:', error);
+					dialog.find('.bootbox-body').find(`#checkStatusBootbox`).prepend(`<li>${list.nama} : Error fetching status</li>`);
+					continue;
+					
+				}
 			}else{
 				dialog.find('.bootbox-body').find(`#checkStatusBootbox`).prepend(`<li>${list.nama} : null</li>`);
 			}

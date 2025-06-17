@@ -499,6 +499,9 @@
 							
 						</form>
 						<hr/>
+						<div class="note note-warning">
+							Barang yang sedang dalam proses Bongkaran (ditandai dengan warna kuning) tidak akan muncul di stok penjualan
+						</div>
 						<?
 							$qty = 0;
 							$roll = 0;
@@ -601,12 +604,13 @@
 											$tipe_data = 0;
 											$roll_split_hasil = 0;
 											?>
-											<tr class='detail-row' style="<?=($row->tipe == 'z1' ? 'background:#B71C1C; color:white' : ($row->tipe == 'a1' && $row->qty_masuk <= 5 ? 'background:#fffede' : ($row->tipe == 'a1' && strpos($row->no_faktur,'Bongkaran') ? 'background:yellow' : '' ) ) )?>" >
+											<tr class='detail-row' style="<?=($row->tipe == 'z1' ? 'background:#B71C1C; color:white' : ($row->tipe == 'a1' && $row->qty_masuk <= 5 ? 'background:#fffede' : ($row->tipe == 'a1' && strpos(strtolower($row->no_faktur),'bongkaran') !== false ? 'background:yellow' : '' ) ) )?>" >
 												<td>
 													<?=date('d F Y H:i:s', strtotime($row->time_stamp));?>
 													<span class='tanggal' hidden><?=$row->tanggal?></span>
 													<?=(is_posisi_id() == 1 ? $row->tipe : '');?>
-													<?=($row->tipe == 'a1' && strpos($row->no_faktur,'bongkaran') ? 'background:yellow' : '' )?>
+													<?=(is_posisi_id() == 1 ? strpos(strtolower($row->no_faktur),'bongkaran') : '');?>
+													<?=($row->tipe == 'a1' && strpos(strtolower($row->no_faktur),'bongkaran') ? 'background:yellow' : '' )?>
 												</td>
 												<td>
 													<?if ($row->tipe == 'a1' || $row->tipe == 'a2' || $row->tipe == 'a3'  || $row->tipe == 'a6' || $row->tipe == 'a3r' ) {

@@ -657,7 +657,7 @@ class Pajak_Model extends CI_Model {
 		return $query->result();	
 	}
 
-	function get_rekam_faktur_pajak_email($id, $cond){
+	function get_rekam_faktur_pajak_email($id, $cond, $limit){
 		$query = $this->db->query("SELECT t1.nama_customer as nama, email, t1.no_npwp as npwp, t1.no_nik as nik, 
 		group_concat(no_faktur_pajak SEPARATOR '??') as no_faktur_pajak, t2.customer_id, t4.updated_at as waktu_kirim, t4.id as kirim_id , group_concat(t2.tanggal) as tanggal_invoice, 
 		status_1,status_2,status_3,status_4,t4.keterangan, email_stat, group_concat(penjualan_id) as penjualan_id, t4.id as rekam_faktur_pajak_email_id,
@@ -678,6 +678,7 @@ class Pajak_Model extends CI_Model {
 			$cond
  			GROUP BY customer_id
 			ORDER BY t3.nama
+			$limit
 			", false);
 
 		return $query->result();	

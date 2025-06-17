@@ -1505,8 +1505,8 @@ class Pajak extends CI_Controller {
 		$last_date = '2019-08-04';
 
 		$data['rekam_faktur_data'] = $rekam_faktur_data;		
-		$data['fp_list_npwp'] = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE npwp != '' AND npwp is not null ");
-		$data['fp_list_nik'] = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE npwp ='' OR npwp is null ");
+		$data['fp_list_npwp'] = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE npwp != '' AND npwp is not null ",'');
+		$data['fp_list_nik'] = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE npwp ='' OR npwp is null ",'');
 		$data['google_setting'] = $this->common_model->db_select("nd_setting");
 		$data['draft_list'] = $this->pjk_model->get_draft_list($id);
 
@@ -1554,7 +1554,7 @@ class Pajak extends CI_Controller {
 		$idx = 0;
 		$head = array();
 
-		$data = $this->pjk_model->get_rekam_faktur_pajak_email($rekam_faktur_pajak_id, "WHERE npwp != '' AND npwp is not null ");
+		$data = $this->pjk_model->get_rekam_faktur_pajak_email($rekam_faktur_pajak_id, "WHERE npwp != '' AND npwp is not null ",'');
 
 		$get_db = $this->common_model->db_select('nd_rekam_faktur_pajak_email where rekam_faktur_pajak_id='.$rekam_faktur_pajak_id." ");
 		$rekam_email_id = array();
@@ -1689,10 +1689,22 @@ class Pajak extends CI_Controller {
 
 	}
 
+	function email_list_draft_list(){
+		$rekam_faktur_pajak_id = $this->input->get('id');
+		$data = $this->pjk_model->get_rekam_faktur_pajak_email($rekam_faktur_pajak_id, "WHERE npwp != '' AND npwp is not null AND (draft_id is null or draft_id = '') and email != '' ",'');
+		echo count($data);
+
+	}
+
 	function email_list_body(){
 
 		$res_toko = $this->common_model->db_select("nd_toko where status_aktif = 1 LIMIT 1");
 		$rekam_faktur_pajak_id = $this->input->get('id');
+		$limit = $this->input->get('limit');
+		$cond_limit = '';
+		if ($limit != '' && $limit != 'undefined') {
+			$cond_limit = "LIMIT ".$limit;
+		}
 
 		$kode_toko = '';
 		$nama_toko = '';
@@ -1718,7 +1730,7 @@ class Pajak extends CI_Controller {
 		$idx = 0;
 		$head = array();
 
-		$data = $this->pjk_model->get_rekam_faktur_pajak_email($rekam_faktur_pajak_id, "WHERE npwp != '' AND npwp is not null ");
+		$data = $this->pjk_model->get_rekam_faktur_pajak_email($rekam_faktur_pajak_id, "WHERE npwp != '' AND npwp is not null AND (draft_id is null or draft_id = '') and email != '' ", $cond_limit);
 
 		$get_db = $this->common_model->db_select('nd_rekam_faktur_pajak_email where rekam_faktur_pajak_id='.$rekam_faktur_pajak_id);
 		$rekam_email_id = array();
@@ -1848,6 +1860,7 @@ class Pajak extends CI_Controller {
 
 		$parts['head'] = $head;
 		$parts['body'] = $message_list;
+		$parts['data'] = $data;
 
 		echo json_encode($parts);
 
@@ -1884,7 +1897,7 @@ class Pajak extends CI_Controller {
 		$idx = 0;
 		$head = array();
 
-		$data = $this->pjk_model->get_rekam_faktur_pajak_email($rekam_faktur_pajak_id, "WHERE npwp != '' AND npwp is not null AND t2.customer_id=$customer_id ");
+		$data = $this->pjk_model->get_rekam_faktur_pajak_email($rekam_faktur_pajak_id, "WHERE npwp != '' AND npwp is not null AND t2.customer_id=$customer_id ",'');
 
 		$get_db = $this->common_model->db_select('nd_rekam_faktur_pajak_email where rekam_faktur_pajak_id='.$rekam_faktur_pajak_id);
 		$rekam_email_id = array();
@@ -2301,7 +2314,7 @@ class Pajak extends CI_Controller {
 			$relay_mail = $row->relay_mail;
 		}
 
-		$fp_list = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE email != '' AND t2.customer_id = ".$customer_id);
+		$fp_list = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE email != '' AND t2.customer_id = ".$customer_id,'');
 
 		foreach ($fp_list as $row) {
 			$filter = 1;
@@ -2878,7 +2891,7 @@ class Pajak extends CI_Controller {
 
 
 			//================== copas file fp ==============================
-			$fp_list = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE t4.id is not null");
+			$fp_list = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE t4.id is not null",'');
 			$filter_nama = [',','.',' '];
 			$filter_nama_cust = ["'","/","&"];
 
@@ -2995,7 +3008,7 @@ class Pajak extends CI_Controller {
 
 
 			//================== copas file fp ==============================
-			$fp_list = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE t4.id is not null");
+			$fp_list = $this->pjk_model->get_rekam_faktur_pajak_email($id, "WHERE t4.id is not null",'');
 			$filter_nama = [',','.',' '];
 			$filter_nama_cust = ["'","/","&"];
 
